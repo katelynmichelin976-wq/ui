@@ -246,6 +246,29 @@
       return audioCtx;
     }
 
+    // 生成完成确认音效（短促的叮声）
+    function playCompleteSound() {
+      const ctx = initAudio();
+      const now = ctx.currentTime;
+
+      // 单个清脆的叮声
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, now); // A5
+      oscillator.frequency.setValueAtTime(1108.73, now + 0.05); // C#6
+
+      gainNode.gain.setValueAtTime(0.25, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      oscillator.start(now);
+      oscillator.stop(now + 0.15);
+    }
+
     // 生成收银机音效
     function playCashRegisterSound() {
       const ctx = initAudio();
@@ -404,6 +427,7 @@
     document.getElementById('completeBtn').addEventListener('click', function(e) {
       createRipple(e, this);
       vibrate();
+      playCompleteSound();
     });
 
     // 通关按钮点击
