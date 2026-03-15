@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>UI 交互动效展示</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f5f0;
+    --surface: #ffffff;
+    --surface2: #f0efeb;
+    --text: #1a1a18;
+    --text2: #6b6b65;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --blue: #1a7aff;
+    --green: #00c27a;
+    --red: #e24b4a;
+    --amber: #f59e0b;
+    --purple: #a855f7;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1c1c1a;
+      --surface2: #252523;
+      --text: #f0efe8;
+      --text2: #888880;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+    }
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .header {
+    padding: 56px 20px 20px;
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.85);
+  }
+  @media (prefers-color-scheme: dark) {
+    .header { background: rgba(28,28,26,0.85); }
+  }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .header p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+  /* Section */
+  .section { padding: 20px 20px 0; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+
+  /* Card wrapper */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 0.5px solid var(--border);
+  }
+
+  /* Button grid */
+  .btn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* Base button */
+  .btn {
+    padding: 16px 12px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border2);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    touch-action: manipulation;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn .btn-label { font-size: 11px; color: var(--text2); font-weight: 400; }
+
+  /* ── Ripple ── */
+  .btn-ripple { background: var(--surface2); }
+  .ripple-el {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: rippleAnim 0.55s cubic-bezier(0.4,0,0.2,1);
+    background: rgba(26,122,255,0.25);
+    pointer-events: none;
+  }
+  @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+  /* ── Jelly ── */
+  @keyframes jelly {
+    0%,100% { transform: scale(1); }
+    20% { transform: scale(1.2, 0.8); }
+    40% { transform: scale(0.85, 1.15); }
+    60% { transform: scale(1.08, 0.93); }
+    80% { transform: scale(0.97, 1.04); }
+  }
+  .jelly-go { animation: jelly 0.5s ease; }
+
+  /* ── Depth ── */
+  .btn-depth {
+    box-shadow: 0 5px 0 var(--border2);
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .btn-depth:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 var(--border2);
+  }
+
+  /* ── Morph ── */
+  .btn-morph { transition: border-radius 0.2s, background 0.25s, color 0.25s; }
+  .btn-morph:active {
+    border-radius: 4px;
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+  @media (prefers-color-scheme: dark) {
+    .btn-morph:active { background: #1e3a5f; color: #93c5fd; }
+  }
+
+  /* ── Glow ── */
+  @keyframes glowPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(26,122,255,0.5); }
+    60%  { box-shadow: 0 0 0 10px rgba(26,122,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(26,122,255,0); }
+  }
+  .glow-go { animation: glowPulse 0.6s ease; }
+
+  /* ── Shockwave ── */
+  .shockwave-el {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 0; height: 0;
+    border-radius: 50%;
+    border: 2px solid var(--blue);
+    opacity: 0.8;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: shockwaveAnim 0.5s ease-out forwards;
+  }
+  @keyframes shockwaveAnim { to { width: 180px; height: 180px; opacity: 0; } }
+
+  /* ── Shake ── */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(7px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+  .shake-go {
+    animation: shake 0.4s ease;
+    border-color: var(--red) !important;
+    color: var(--red) !important;
+    background: #fff0f0 !important;
+  }
+  @media (prefers-color-scheme: dark) {
+    .shake-go { background: #2a1010 !important; }
+  }
+
+  /* ── Success state ── */
+  .btn-state { transition: background 0.3s, color 0.3s, border-color 0.3s; }
+  .btn-state.success-active {
+    background: #ecfdf5;
+    color: #065f46;
+    border-color: #6ee7b7;
+  }
+  @media (prefers-color-scheme: dark) {
+    .btn-state.success-active { background: #0a2e20; color: #6ee7b7; border-color: #065f46; }
+  }
+
+  /* ── Slide fill ── */
+  .btn-slide { overflow: hidden; }
+  .slide-fill {
+    position: absolute; left: -100%; top: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, rgba(26,122,255,0.12), rgba(26,122,255,0.22));
+    transition: left 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .btn-slide.slide-active .slide-fill { left: 0; }
+  .btn-slide .btn-text { position: relative; z-index: 1; }
+
+  /* ── Sound rows ── */
+  .sound-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 18px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    border-bottom: 0.5px solid var(--border);
+    transition: background 0.12s;
+    touch-action: manipulation;
+  }
+  .sound-row:last-child { border-bottom: none; }
+  .sound-row:active { background: var(--surface2); }
+  .sound-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .sound-info { flex: 1; }
+  .sound-name { font-size: 15px; font-weight: 500; }
+  .sound-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .sound-bars {
+    display: flex; align-items: flex-end; gap: 2.5px; height: 18px;
+  }
+  .sound-bars span {
+    width: 3px; background: var(--border2); border-radius: 2px; display: block;
+    transition: height 0.1s;
+  }
+  .sound-row.playing .sound-bars span {
+    background: var(--blue);
+    animation: barBounce 0.4s ease infinite alternate;
+  }
+  @keyframes barBounce {
+    from { height: 4px; }
+    to   { height: 16px; }
+  }
+  .sound-bars span:nth-child(1){ height:5px;  animation-delay:0s }
+  .sound-bars span:nth-child(2){ height:10px; animation-delay:.07s }
+  .sound-bars span:nth-child(3){ height:16px; animation-delay:.14s }
+  .sound-bars span:nth-child(4){ height:10px; animation-delay:.09s }
+  .sound-bars span:nth-child(5){ height:5px;  animation-delay:.03s }
+
+  /* ── Big action buttons ── */
+  .action-btn {
+    width: 100%;
+    padding: 18px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.1s, background 0.3s, color 0.3s, border-color 0.3s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 56px;
+    margin-bottom: 12px;
+    position: relative; overflow: hidden;
+  }
+  .action-btn:active { transform: scale(0.97); }
+
+  /* ── Confetti canvas ── */
+  #confetti-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999;
+  }
+
+  /* ── Loading spinner SVG ── */
+  .spinner { display: none; }
+  .spinner circle {
+    stroke: var(--border2); stroke-width: 2.5; fill: none;
+  }
+  .spinner path {
+    stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round;
+  }
+  @keyframes spin { to { transform: rotate(360deg); transform-origin: center; } }
+  .spinner path { animation: spin 0.7s linear infinite; transform-origin: 10px 10px; }
+
+  /* ── Haptic badge ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 600;
+    background: #fef3c7;
+    color: #92400e;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  @media (prefers-color-scheme: dark) {
+    .badge { background: #2a1f06; color: #fbbf24; }
+  }
+  .badge.green { background: #d1fae5; color: #065f46; }
+  @media (prefers-color-scheme: dark) {
+    .badge.green { background: #0a2e20; color: #6ee7b7; }
+  }
+
+  /* Spacer */
+  .spacer { height: 20px; }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Header -->
+<div class="header">
+  <h1>UI 交互动效</h1>
+  <p>按钮动效 · 音效 · 撒花特效</p>
+</div>
+
+<!-- Button Effects -->
+<div class="section">
+  <div class="spacer"></div>
+  <div class="section-label">按钮动效</div>
+  <div class="btn-grid">
+
+    <button class="btn btn-ripple" ontouchstart="" onclick="doRipple(event, this)">
+      涟漪效果
+      <span class="btn-label">Ripple</span>
+    </button>
+
+    <button class="btn" id="btn-jelly" ontouchstart="" onclick="doJelly(this)">
+      果冻弹跳
+      <span class="btn-label">Jelly</span>
+    </button>
+
+    <button class="btn btn-depth" ontouchstart="">
+      实体下压
+      <span class="btn-label">Depth</span>
+    </button>
+
+    <button class="btn btn-morph" ontouchstart="">
+      形变过渡
+      <span class="btn-label">Morph</span>
+    </button>
+
+    <button class="btn" id="btn-glow" ontouchstart="" onclick="doGlow(this)">
+      发光脉冲
+      <span class="btn-label">Glow</span>
+    </button>
+
+    <button class="btn" id="btn-shock" ontouchstart="" onclick="doShockwave(this)" style="overflow:visible">
+      冲击波
+      <span class="btn-label">Shockwave</span>
+    </button>
+
+    <button class="btn" id="btn-shake" ontouchstart="" onclick="doShake(this)">
+      错误抖动
+      <span class="btn-label">Shake</span>
+    </button>
+
+    <button class="btn btn-state" id="btn-state" ontouchstart="" onclick="doSuccessState(this)">
+      成功状态
+      <span class="btn-label">Success</span>
+    </button>
+
+  </div>
+</div>
+
+<!-- Sound Effects -->
+<div class="section">
+  <div class="section-label">音效 <span class="badge">需点击激活</span></div>
+  <div class="card">
+
+    <div class="sound-row" ontouchstart="" onclick="playSound('click', this)">
+      <div class="sound-icon" style="background:#e0eeff">🖱️</div>
+      <div class="sound-info">
+        <div class="sound-name">点击音</div>
+        <div class="sound-desc">短促清脆，通用按钮</div>
+      </div>
+      <div class="sound-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="sound-row" ontouchstart="" onclick="playSound('success', this)">
+      <div class="sound-icon" style="background:#d1fae5">✅</div>
+      <div class="sound-info">
+        <div class="sound-name">成功音</div>
+        <div class="sound-desc">上升三音阶，完成/提交</div>
+      </div>
+      <div class="sound-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="sound-row" ontouchstart="" onclick="playSound('error', this)">
+      <div class="sound-icon" style="background:#fee2e2">❌</div>
+      <div class="sound-info">
+        <div class="sound-name">错误音</div>
+        <div class="sound-desc">低沉衰减，输入错误</div>
+      </div>
+      <div class="sound-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="sound-row" ontouchstart="" onclick="playSound('pop', this)">
+      <div class="sound-icon" style="background:#fce7f3">🫧</div>
+      <div class="sound-info">
+        <div class="sound-name">气泡音</div>
+        <div class="sound-desc">轻快弹出，通知/标签</div>
+      </div>
+      <div class="sound-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="sound-row" ontouchstart="" onclick="playSound('coin', this)">
+      <div class="sound-icon" style="background:#fef3c7">🪙</div>
+      <div class="sound-info">
+        <div class="sound-name">金币音</div>
+        <div class="sound-desc">双音节奖励，游戏化</div>
+      </div>
+      <div class="sound-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="sound-row" ontouchstart="" onclick="playSound('notification', this)">
+      <div class="sound-icon" style="background:#ede9fe">🔔</div>
+      <div class="sound-info">
+        <div class="sound-name">通知音</div>
+        <div class="sound-desc">柔和提示，消息通知</div>
+      </div>
+      <div class="sound-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confetti -->
+<div class="section">
+  <div class="spacer"></div>
+  <div class="section-label">完成庆祝特效</div>
+  <button class="action-btn" id="confetti-btn" ontouchstart="" onclick="triggerConfetti(this)">
+    🎉 触发撒花特效
+  </button>
+</div>
+
+<!-- Submit animation -->
+<div class="section">
+  <div class="section-label">加载 → 成功 流程</div>
+  <button class="action-btn" id="submit-btn" ontouchstart="" onclick="triggerSubmit(this)">
+    <svg class="spinner" id="spinner" width="20" height="20" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="7"/>
+      <path d="M10 3 A7 7 0 0 1 17 10"/>
+    </svg>
+    <span id="submit-label">提交表单</span>
+  </button>
+</div>
+
+<!-- Sound + Animation combo -->
+<div class="section">
+  <div class="section-label">组合效果</div>
+  <button class="action-btn" id="combo-btn" ontouchstart="" onclick="triggerCombo(this)">
+    ⚡ 音效 + 动效 组合
+  </button>
+  <div class="spacer"></div>
+</div>
+
+<script>
+// ─── Audio Context ───────────────────────────────────────────
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function playSound(type, rowEl) {
+  const ac = getCtx();
+  const now = ac.currentTime;
+
+  if (type === 'click') {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(900, now);
+    o.frequency.exponentialRampToValueAtTime(450, now + 0.06);
+    g.gain.setValueAtTime(0.28, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    o.start(now); o.stop(now + 0.09);
+
+  } else if (type === 'success') {
+    [[523, 0], [659, 0.1], [784, 0.2], [1047, 0.32]].forEach(([freq, delay]) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = 'sine'; o.frequency.value = freq;
+      const t = now + delay;
+      g.gain.setValueAtTime(0.22, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      o.start(t); o.stop(t + 0.18);
+    });
+
+  } else if (type === 'error') {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(240, now);
+    o.frequency.exponentialRampToValueAtTime(90, now + 0.3);
+    g.gain.setValueAtTime(0.2, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    o.start(now); o.stop(now + 0.3);
+
+  } else if (type === 'pop') {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.connect(g); g.connect(ac.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(1400, now);
+    o.frequency.exponentialRampToValueAtTime(700, now + 0.07);
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    o.start(now); o.stop(now + 0.12);
+
+  } else if (type === 'coin') {
+    [[988, 0], [1319, 0.09], [1568, 0.18]].forEach(([freq, delay]) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = 'sine'; o.frequency.value = freq;
+      const t = now + delay;
+      g.gain.setValueAtTime(0.22, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      o.start(t); o.stop(t + 0.2);
+    });
+
+  } else if (type === 'notification') {
+    [[880, 0, 0.15], [1108, 0.15, 0.3]].forEach(([freq, start, end]) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = 'sine'; o.frequency.value = freq;
+      const t = now + start;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.2, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, now + end + 0.12);
+      o.start(t); o.stop(now + end + 0.15);
+    });
+  }
+
+  if (rowEl) {
+    rowEl.classList.add('playing');
+    setTimeout(() => rowEl.classList.remove('playing'), 600);
+  }
+}
+
+// ─── Button Effects ──────────────────────────────────────────
+function doRipple(e, btn) {
+  const el = document.createElement('span');
+  const d = Math.max(btn.offsetWidth, btn.offsetHeight);
+  const rect = btn.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  el.style.cssText = `width:${d}px;height:${d}px;left:${clientX - rect.left - d/2}px;top:${clientY - rect.top - d/2}px`;
+  el.className = 'ripple-el';
+  btn.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+  playSound('click');
+}
+
+function doJelly(btn) {
+  btn.classList.remove('jelly-go');
+  void btn.offsetWidth;
+  btn.classList.add('jelly-go');
+  btn.addEventListener('animationend', () => btn.classList.remove('jelly-go'), { once: true });
+  playSound('pop');
+}
+
+function doGlow(btn) {
+  btn.classList.remove('glow-go');
+  void btn.offsetWidth;
+  btn.classList.add('glow-go');
+  btn.addEventListener('animationend', () => btn.classList.remove('glow-go'), { once: true });
+  playSound('click');
+}
+
+function doShockwave(btn) {
+  const el = document.createElement('span');
+  el.className = 'shockwave-el';
+  btn.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+  playSound('click');
+}
+
+function doShake(btn) {
+  btn.classList.remove('shake-go');
+  void btn.offsetWidth;
+  btn.classList.add('shake-go');
+  btn.addEventListener('animationend', () => btn.classList.remove('shake-go'), { once: true });
+  playSound('error');
+}
+
+function doSuccessState(btn) {
+  if (btn.classList.contains('success-active')) return;
+  btn.classList.add('success-active');
+  btn.innerHTML = '✓ 已保存<br><span class="btn-label">Success</span>';
+  playSound('success');
+  setTimeout(() => {
+    btn.classList.remove('success-active');
+    btn.innerHTML = '成功状态<br><span class="btn-label">Success</span>';
+  }, 2200);
+}
+
+// ─── Confetti ────────────────────────────────────────────────
+let confettiFrame = null;
+function triggerConfetti(btn) {
+  playSound('success');
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#1a7aff','#ff3366','#ffcc00','#00c27a','#ff6b35','#a855f7','#06b6d4','#f43f5e'];
+  const pieces = Array.from({length: 140}, () => ({
+    x: Math.random() * canvas.width,
+    y: -15 - Math.random() * 60,
+    vx: (Math.random() - 0.5) * 7,
+    vy: Math.random() * 3.5 + 2,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    w: Math.random() * 9 + 4,
+    h: Math.random() * 5 + 3,
+    rotation: Math.random() * 360,
+    rotSpeed: (Math.random() - 0.5) * 10,
+    shape: Math.random() < 0.6 ? 'rect' : 'circle',
+    wobble: Math.random() * 3
+  }));
+
+  cancelAnimationFrame(confettiFrame);
+  let frame = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      p.x += p.vx + Math.sin(frame * 0.05 + p.wobble) * 0.5;
+      p.y += p.vy;
+      p.vy += 0.07;
+      p.rotation += p.rotSpeed;
+      if (p.y < canvas.height + 20) alive = true;
+      const alpha = Math.max(0, 1 - p.y / (canvas.height * 1.1));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.w/2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+    frame++;
+    if (alive) confettiFrame = requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+
+  btn.textContent = '🎊 再放一次';
+  setTimeout(() => btn.textContent = '🎉 触发撒花特效', 3500);
+}
+
+// ─── Submit animation ────────────────────────────────────────
+let isSubmitting = false;
+function triggerSubmit(btn) {
+  if (isSubmitting) return;
+  isSubmitting = true;
+  const label = document.getElementById('submit-label');
+  const spinner = document.getElementById('spinner');
+  spinner.style.display = 'block';
+  label.textContent = '提交中…';
+  btn.style.color = 'var(--text2)';
+  btn.style.borderColor = 'var(--border)';
+
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    label.textContent = '✓ 提交成功';
+    btn.style.background = '#ecfdf5';
+    btn.style.color = '#065f46';
+    btn.style.borderColor = '#6ee7b7';
+    playSound('success');
+
+    setTimeout(() => {
+      label.textContent = '提交表单';
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      isSubmitting = false;
+    }, 2500);
+  }, 1600);
+}
+
+// ─── Combo ───────────────────────────────────────────────────
+let comboLock = false;
+function triggerCombo(btn) {
+  if (comboLock) return;
+  comboLock = true;
+
+  btn.classList.remove('jelly-go');
+  void btn.offsetWidth;
+  btn.classList.add('jelly-go');
+  playSound('click');
+
+  setTimeout(() => { playSound('pop'); }, 120);
+  setTimeout(() => {
+    triggerConfetti(btn);
+    playSound('coin');
+  }, 280);
+
+  btn.addEventListener('animationend', () => {
+    btn.classList.remove('jelly-go');
+    comboLock = false;
+  }, { once: true });
+}
+</script>
+</body>
+</html>
