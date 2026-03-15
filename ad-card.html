@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>认知训练</title>
@@ -93,15 +93,16 @@ body {
 .home-scroll {
   flex: 1; width: 100%; max-width: 500px;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 0 16px;
 }
 
 /* ── Ocean-blue top bar ── */
 .home-topbar {
   width: 100%;
-  padding: 52px 18px 16px;
+  padding: calc(10px + env(safe-area-inset-top, 44px)) 16px 14px;
   display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
-  background: var(--bg);  /* same as page — no visual break */
+  background: var(--bg);
 }
 .home-title {
   font-size: 24px; font-weight: 800; letter-spacing: -.4px;
@@ -138,7 +139,7 @@ body {
 }
 .home-gear-btn:active { background: var(--surf2); }
 
-.home-section { width: 100%; padding: 16px 16px 0; }
+.home-section { width: 100%; padding: 16px 0 0; }
 
 /* Deck cards */
 .deck-grid {
@@ -169,7 +170,7 @@ body {
 .deck-stat-lbl { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; }
 
 /* Mode row — same corner radius as deck-grid */
-.mode-row { display: flex; gap: 10px; padding: 14px 16px 0; }
+.mode-row { display: flex; gap: 10px; padding: 14px 0 0; }
 .mode-btn {
   flex: 1; background: var(--surf); border: 1.5px solid var(--bd);
   border-radius: var(--r);
@@ -189,7 +190,7 @@ body {
 /* Start button */
 .home-footer {
   width: 100%; max-width: 500px; flex-shrink: 0;
-  padding: 20px 16px 36px;
+  padding: 14px 16px calc(12px + env(safe-area-inset-bottom, 20px));
   background: var(--bg);
 }
 .start-btn {
@@ -214,7 +215,7 @@ body {
 .bar {
   width:100%; max-width:500px;
   display:flex; align-items:center; gap:12px;
-  padding: 52px 18px 14px;
+  padding: calc(10px + env(safe-area-inset-top, 44px)) 18px 14px;
   flex-shrink: 0;
 }
 .back-btn {
@@ -362,7 +363,8 @@ body {
 /* Bottom */
 .btm {
   width:100%; max-width:500px; flex-shrink:0;
-  padding:10px 14px 36px; display:flex; flex-direction:column; gap:10px;
+  padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 20px));
+  display:flex; flex-direction:column; gap:10px;
 }
 .subbtn {
   width:100%; height:64px; border-radius:var(--r);
@@ -434,7 +436,7 @@ body {
   transform:translateX(-50%) translateY(100%);
   width:100%; max-width:500px;
   background:var(--surf); border-radius:24px 24px 0 0;
-  border-top:0.5px solid var(--bd); padding:0 0 44px;
+  border-top:0.5px solid var(--bd); padding:0 0 calc(16px + env(safe-area-inset-bottom, 16px));
   transition:transform .32s cubic-bezier(.32,1,.36,1);
 }
 .settings-overlay.open .settings-sheet { transform:translateX(-50%) translateY(0); }
@@ -671,6 +673,7 @@ let THRESH = 5000, SPEAK_DELAY = 1200;
 
 // ── Home nav ───────────────────────────────────────────────────
 function selectDeck(el) {
+  warmupSpeech();  // iOS: unlock speech on first touch
   document.querySelectorAll('.deck-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   currentDeck = el.dataset.deck;
@@ -708,6 +711,7 @@ function updateDeckStats() {
 }
 
 function startSession() {
+  warmupSpeech();
   Qs = getDeck(currentDeck);
   if (currentMode === 'browse') {
     Qs = Qs.map(q => ({ ...q, browse: true }));
@@ -791,22 +795,58 @@ function tone(t) {
 
 // ── Speech ─────────────────────────────────────────────────────
 let voices = [];
-function loadVoices() { voices = speechSynthesis.getVoices(); }
-loadVoices();
-if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-function pickVoice() {
-  return voices.find(v=>v.lang==='zh-CN') || voices.find(v=>v.lang.startsWith('zh')) || voices[0] || null;
+let speechReady = false;
+
+function loadVoices() {
+  const v = speechSynthesis.getVoices();
+  if (v.length) voices = v;
 }
-function speak(text, delay=0) {
+loadVoices();
+if (typeof speechSynthesis.onvoiceschanged !== 'undefined') {
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+// iOS: warm up speech engine on first user gesture
+// Call this inside any click/touch handler before the first real speak
+function warmupSpeech() {
+  if (speechReady) return;
+  speechReady = true;
+  const utt = new SpeechSynthesisUtterance('');
+  utt.volume = 0;
+  speechSynthesis.speak(utt);
+  // Also try loading voices now (iOS sometimes loads them after user gesture)
+  setTimeout(() => { loadVoices(); }, 300);
+}
+
+function pickVoice() {
+  // Reload voices in case they weren't available at init
+  if (!voices.length) loadVoices();
+  return voices.find(v => v.lang === 'zh-CN')
+      || voices.find(v => v.lang === 'zh-TW')
+      || voices.find(v => v.lang.startsWith('zh'))
+      || (voices.length ? voices[0] : null);
+}
+
+function speak(text, delay = 0) {
   speechSynthesis.cancel();
   const go = () => {
+    // On iOS, if voices still empty after warmup, retry once
+    if (!voices.length) loadVoices();
     const utt = new SpeechSynthesisUtterance(text);
-    utt.lang='zh-CN'; utt.rate=0.88; utt.pitch=1.05; utt.volume=1;
-    const v = pickVoice(); if (v) utt.voice=v;
+    utt.lang = 'zh-CN';
+    utt.rate = 0.85;
+    utt.pitch = 1.0;
+    utt.volume = 1;
+    const v = pickVoice();
+    if (v) utt.voice = v;
     speechSynthesis.speak(utt);
-    setTimeout(()=>{ if(speechSynthesis.paused) speechSynthesis.resume(); }, 200);
+    // iOS bug: sometimes pauses after starting
+    setTimeout(() => {
+      if (speechSynthesis.paused) speechSynthesis.resume();
+    }, 250);
   };
-  if (delay>0) setTimeout(go, delay); else go();
+  if (delay > 0) setTimeout(go, delay);
+  else go();
 }
 
 // ── Diamond ────────────────────────────────────────────────────
