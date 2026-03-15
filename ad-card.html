@@ -108,6 +108,27 @@ body {
   font-size: 24px; font-weight: 800; letter-spacing: -.4px;
   color: var(--ocean);
 }
+.home-title-wrap {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.home-version {
+  font-size: 11px; font-weight: 600;
+  color: var(--text3); letter-spacing: .02em;
+  margin-bottom: 1px;
+}
+.home-refresh-btn {
+  background: none; border: none; cursor: pointer; padding: 3px;
+  -webkit-tap-highlight-color: transparent;
+  color: var(--text3); display: flex; align-items: center;
+  border-radius: 6px;
+  transition: color .15s, transform .3s;
+  align-self: center;
+}
+.home-refresh-btn:active { color: var(--ocean); }
+.home-refresh-btn.spinning svg {
+  animation: spin360 .6s ease-out;
+}
+@keyframes spin360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /* Right icon cluster */
 .home-icons {
@@ -169,37 +190,34 @@ body {
 .deck-stat-num.new-c{ color: var(--green); }
 .deck-stat-lbl { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; }
 
-/* Mode row — same corner radius as deck-grid */
-.mode-row { display: flex; gap: 10px; padding: 14px 0 0; }
-.mode-btn {
-  flex: 1; background: var(--surf); border: 1.5px solid var(--bd);
-  border-radius: var(--r);
-  padding: 20px 10px;
-  cursor: pointer; outline: none;
-  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-  transition: border-color .15s, background .15s, transform .1s; text-align: center;
-  box-shadow: var(--sh);
-}
-.mode-btn:active { transform: scale(.97); }
-.mode-btn.selected { border-color: var(--ocean); border-width: 2px; background: var(--blue-bg); }
-.mode-icon { font-size: 26px; margin-bottom: 7px; }
-.mode-name { font-size: 16px; font-weight: 700; color: var(--text); }
-.mode-desc { font-size: 12px; color: var(--text2); margin-top: 3px; }
-.mode-btn.selected .mode-name { color: var(--ocean); }
-
-/* Start button */
+/* Start footer — browse (secondary) + start (primary) */
 .home-footer {
   width: 100%; max-width: 500px; flex-shrink: 0;
   padding: 14px 16px calc(12px + env(safe-area-inset-bottom, 20px));
   background: var(--bg);
 }
+.footer-btns {
+  display: flex; gap: 10px; align-items: stretch;
+}
+.browse-btn {
+  flex: 1;          /* 1/3 of total width (1 vs 2) */
+  height: 62px; border-radius: var(--r);
+  border: 2px solid var(--bd2);
+  background: var(--surf); color: var(--text2);
+  font-family: inherit; font-size: 16px; font-weight: 700;
+  cursor: pointer; outline: none;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: background .15s, transform .1s;
+}
+.browse-btn:active { transform: scale(.97); background: var(--surf2); }
 .start-btn {
-  width: 100%; height: 62px; border-radius: var(--r); border: none;
+  flex: 2;          /* 2/3 of total width */
+  height: 62px; border-radius: var(--r); border: none;
   background: var(--ocean); color: #fff;
   font-family: inherit; font-size: 18px; font-weight: 800;
   cursor: pointer; outline: none;
   -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-  transition: transform .1s, filter .1s;
+  transition: transform .1s;
   box-shadow: 0 4px 0 var(--ocean-dk);
 }
 .start-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--ocean-dk); }
@@ -273,25 +291,39 @@ body {
 .content {
   flex:1; width:100%; max-width:500px;
   display:flex; flex-direction:column;
-  padding:0 14px; gap:12px; min-height:0;
+  padding:0 14px; gap:10px; min-height:0;
 }
 
-/* Target card — slightly smaller to give options more room */
+/* Target card — fixed height for 4:3 photo */
 .target-card {
   background:var(--surf);
   border-radius:var(--r); border:1px solid var(--bd); box-shadow:var(--sh);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  padding:14px 16px 12px; flex-shrink:0; gap:8px;
+  display:flex; align-items:center; justify-content:center;
+  height:220px; flex-shrink:0;
+  overflow:hidden; padding:0;
 }
-.target-label { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:.1em; text-transform:uppercase; }
 .target-img {
-  width:130px; height:130px; border-radius:20px;
-  background:var(--surf2); display:flex; align-items:center; justify-content:center;
-  font-size:88px; line-height:1;
+  width:100%; height:100%;
+  border-radius:var(--r);
+  background:var(--surf2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:140px; line-height:1;
+  overflow:hidden;
   animation:imgPop .38s cubic-bezier(.34,1.56,.64,1);
 }
+/* When real <img> is used inside target-img */
+.target-img img {
+  width:100%; height:100%;
+  object-fit:cover; object-position:center;
+  border-radius:var(--r);
+  display:block;
+}
 @keyframes imgPop{from{transform:scale(.78);opacity:0}to{transform:scale(1);opacity:1}}
-.instr { display:flex; align-items:center; gap:7px; transition:opacity .3s; }
+.instr {
+  display:flex; align-items:center; justify-content:center;
+  gap:7px; transition:opacity .3s; flex-shrink:0;
+  padding:2px 0;
+}
 .dots  { display:flex; gap:4px; }
 .dot   { width:7px; height:7px; border-radius:50%; background:var(--ocean); animation:dp 1.5s ease-in-out infinite; }
 .dot:nth-child(2){animation-delay:.17s}.dot:nth-child(3){animation-delay:.34s}
@@ -302,10 +334,10 @@ body {
 .opts-zone {
   flex:1; min-height:0; display:flex; flex-direction:column;
   background:var(--surf2); border-radius:var(--r);
-  border:1px solid var(--bd); padding:10px;
+  border:1px solid var(--bd); padding:8px;
 }
 .opts {
-  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
   flex:1; min-height:0;
 }
 .opt {
@@ -318,7 +350,11 @@ body {
   min-height:0;
 }
 .opt:active{transform:scale(.965)}
-.otxt { font-size:22px; font-weight:700; color:var(--text); text-align:center; line-height:1.2; word-break:keep-all; transition:color .18s; }
+.otxt {
+  font-size:24px; font-weight:700;
+  color:var(--text); text-align:center; line-height:1.2;
+  word-break:keep-all; transition:color .18s;
+}
 .rpl  { position:absolute; border-radius:50%; background:var(--blue-lt); transform:scale(0); animation:rout .5s ease-out forwards; pointer-events:none; }
 @keyframes rout{to{transform:scale(5);opacity:0}}
 .opt.sel { border-color:var(--ocean); background:var(--blue-bg); }
@@ -333,31 +369,34 @@ body {
 .opt.dim    { opacity:.25; pointer-events:none; }
 .opt.dim::after { display:none; }
 
-/* Answer panel */
+/* Answer panel — same fixed height as opts-zone area */
 .answer-panel {
   flex:1; min-height:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   background:var(--surf); border-radius:var(--r);
-  border:0.5px solid var(--bd); box-shadow:var(--sh);
-  padding:20px 20px 16px; overflow:hidden;
+  border:1px solid var(--bd); box-shadow:var(--sh);
+  padding:18px 20px 14px; overflow:hidden;
   opacity:0; transform:scale(.96);
   transition:opacity .3s, transform .3s cubic-bezier(.34,1.56,.64,1);
 }
 .answer-panel.show { opacity:1; transform:scale(1); }
 .answer-word {
-  font-size:52px; font-weight:800; letter-spacing:-1.5px;
+  font-size:48px; font-weight:800; letter-spacing:-1px;
   color:var(--text); line-height:1; text-align:center;
-  flex-shrink:0; margin-bottom:16px;
+  flex-shrink:0; margin-bottom:14px;
 }
-.answer-details { width:100%; display:flex; flex-direction:column; gap:8px; overflow:hidden; flex-shrink:1; }
+.answer-details {
+  width:100%; display:flex; flex-direction:column;
+  gap:7px; overflow:hidden; flex-shrink:1;
+}
 .detail-item {
   display:flex; align-items:flex-start; gap:10px;
-  padding:10px 13px; background:var(--surf2); border-radius:12px;
+  padding:9px 13px; background:var(--surf2); border-radius:12px;
   flex-shrink:0; opacity:0; transform:translateY(6px);
   transition:opacity .3s, transform .3s;
 }
 .detail-item.show { opacity:1; transform:translateY(0); }
-.detail-dot { width:7px; height:7px; border-radius:50%; background:var(--blue); flex-shrink:0; margin-top:7px; }
+.detail-dot { width:6px; height:6px; border-radius:50%; background:var(--ocean); flex-shrink:0; margin-top:8px; }
 .detail-txt { font-size:15px; font-weight:500; color:var(--text2); line-height:1.5; }
 
 /* Bottom */
@@ -475,7 +514,16 @@ body {
   <div class="home-scroll">
     <!-- Duolingo-style top bar -->
     <div class="home-topbar">
-      <div class="home-title">忆海拾光</div>
+      <div class="home-title-wrap">
+        <span class="home-title">忆海拾光</span>
+        <span class="home-version">v0.2</span>
+        <button class="home-refresh-btn" onclick="forceRefresh()" aria-label="强制刷新">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+      </div>
       <div class="home-icons">
         <!-- streak -->
         <div class="home-icon-btn">
@@ -498,56 +546,18 @@ body {
     </div>
 
     <div class="home-section">
-      <div class="deck-grid" id="deck-grid">        <div class="deck-card selected" data-deck="fruit" onclick="selectDeck(this)">
-          <div class="deck-info"><div class="deck-name">水果</div></div>
-          <div class="deck-stats">
-            <div class="deck-stat"><span class="deck-stat-num due" data-deck="fruit" data-type="due">4</span><span class="deck-stat-lbl">到期</span></div>
-            <div class="deck-stat"><span class="deck-stat-num new-c" data-deck="fruit" data-type="new">4</span><span class="deck-stat-lbl">新卡</span></div>
-          </div>
-        </div>
-        <div class="deck-card" data-deck="veg" onclick="selectDeck(this)">
-          <div class="deck-info"><div class="deck-name">蔬菜</div></div>
-          <div class="deck-stats">
-            <div class="deck-stat"><span class="deck-stat-num due" data-deck="veg" data-type="due">4</span><span class="deck-stat-lbl">到期</span></div>
-            <div class="deck-stat"><span class="deck-stat-num new-c" data-deck="veg" data-type="new">4</span><span class="deck-stat-lbl">新卡</span></div>
-          </div>
-        </div>
-        <div class="deck-card" data-deck="animal" onclick="selectDeck(this)">
-          <div class="deck-info"><div class="deck-name">动物</div></div>
-          <div class="deck-stats">
-            <div class="deck-stat"><span class="deck-stat-num due" data-deck="animal" data-type="due">4</span><span class="deck-stat-lbl">到期</span></div>
-            <div class="deck-stat"><span class="deck-stat-num new-c" data-deck="animal" data-type="new">4</span><span class="deck-stat-lbl">新卡</span></div>
-          </div>
-        </div>
-        <div class="deck-card" data-deck="random" onclick="selectDeck(this)">
-          <div class="deck-info"><div class="deck-name">随机</div></div>
-          <div class="deck-stats">
-            <div class="deck-stat"><span class="deck-stat-num due" data-deck="random" data-type="due">—</span><span class="deck-stat-lbl">到期</span></div>
-            <div class="deck-stat"><span class="deck-stat-num new-c" data-deck="random" data-type="new">—</span><span class="deck-stat-lbl">新卡</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="home-section">
-      <div class="mode-row">
-        <div class="mode-btn selected" data-mode="quiz" onclick="selectMode(this)">
-          <div class="mode-icon">🎯</div>
-          <div class="mode-name">练习</div>
-          <div class="mode-desc">选择正确答案</div>
-        </div>
-        <div class="mode-btn" data-mode="browse" onclick="selectMode(this)">
-          <div class="mode-icon">📖</div>
-          <div class="mode-name">浏览</div>
-          <div class="mode-desc">只看图片答案</div>
-        </div>
+      <div class="deck-grid" id="deck-grid">
+        <!-- rendered by JS from DECKS_META -->
       </div>
     </div>
   </div>
 
-  <!-- Sticky footer -->
+  <!-- Sticky footer: browse (secondary) + start (primary) -->
   <div class="home-footer">
-    <button class="start-btn" onclick="startSession()">开始</button>
+    <div class="footer-btns">
+      <button class="browse-btn" onclick="startBrowse()">浏览</button>
+      <button class="start-btn"  onclick="startQuiz()">开始练习</button>
+    </div>
   </div>
 
 </div>
@@ -569,12 +579,11 @@ body {
 
   <div class="content" id="content">
     <div class="target-card">
-      <div class="target-label">找出对应的选项</div>
       <div class="target-img" id="timg"></div>
-      <div class="instr" id="instr">
-        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-        <span class="instr-txt">从下方选一个</span>
-      </div>
+    </div>
+    <div class="instr" id="instr">
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <span class="instr-txt">从下方选一个</span>
     </div>
     <div class="opts-zone" id="opts-zone">
       <div class="opts" id="opts"></div>
@@ -631,34 +640,119 @@ body {
 </div>
 
 <script>
-// ── Decks ──────────────────────────────────────────────────────
+// ── Card data (JSON — easy to extend) ─────────────────────────
+// Format: { img, name, options:[4 strings], correct:0-3, details:[1-3 strings], voice }
+// voice: text read aloud on answer reveal (defaults to name if omitted)
+
 const DECKS = {
+
+  // ── 日常用品 (20 cards) ──────────────────────────────────────
+  daily: [
+    { img:'🥤', name:'杯子',   options:['碗','盘子','杯子','筷子'],   correct:2, details:['用来喝水的','有把手的叫茶杯','喝完记得放好'] },
+    { img:'🍜', name:'碗',     options:['盘子','碗','杯子','锅'],      correct:1, details:['用来盛饭盛汤的','圆圆的，比盘子深','吃饭用'] },
+    { img:'🥢', name:'筷子',   options:['勺子','叉子','筷子','刀'],    correct:2, details:['用来夹菜吃饭的','两根一起用','中国人常用'] },
+    { img:'🥄', name:'勺子',   options:['筷子','叉子','刀','勺子'],    correct:3, details:['用来喝汤的','圆圆的头，长长的柄','也可以舀粥'] },
+    { img:'🪥', name:'牙刷',   options:['梳子','牙刷','毛巾','镜子'],  correct:1, details:['用来刷牙的','每天早晚都要用','保持牙齿健康'] },
+    { img:'🧣', name:'毛巾',   options:['毛巾','手帕','围巾','毯子'],  correct:0, details:['用来擦脸擦手的','洗完脸用它擦干','软软的'] },
+    { img:'🧼', name:'香皂',   options:['牙膏','香皂','洗发水','面霜'],correct:1, details:['洗手用的','能去掉脏东西','用完要冲干净'] },
+    { img:'💇', name:'梳子',   options:['牙刷','剪刀','梳子','镜子'],  correct:2, details:['用来梳头发的','早上起来梳头','让头发整整齐齐'] },
+    { img:'🪞', name:'镜子',   options:['窗户','画框','镜子','门'],    correct:2, details:['可以照自己的脸','照镜子看看整不整齐','镜子里的是自己'] },
+    { img:'👓', name:'眼镜',   options:['太阳镜','眼镜','放大镜','望远镜'],correct:1, details:['戴上可以看清楚','近视的人需要戴','放在固定地方别丢'] },
+    { img:'🔑', name:'钥匙',   options:['硬币','钥匙','戒指','剪刀'],  correct:1, details:['用来开门的','出门要带好钥匙','有好几种形状'] },
+    { img:'📱', name:'手机',   options:['遥控器','手机','平板','电话'],correct:1, details:['可以打电话','也可以看视频','充电才能用'] },
+    { img:'📺', name:'遥控器', options:['手机','遥控器','计算器','键盘'],correct:1, details:['用来开电视的','换台按上下键','音量也能调'] },
+    { img:'☂️', name:'雨伞',   options:['扇子','雨伞','拐杖','帽子'],  correct:1, details:['下雨天撑伞','能挡雨不被淋湿','出门看天气'] },
+    { img:'👛', name:'钱包',   options:['书包','钱包','袋子','盒子'],  correct:1, details:['装钱用的','出门要带上','里面放钱和卡'] },
+    { img:'🩴', name:'拖鞋',   options:['运动鞋','皮鞋','拖鞋','靴子'],correct:2, details:['在家里穿的鞋','软软的很舒服','出门换鞋'] },
+    { img:'🛏️', name:'枕头',   options:['被子','毯子','枕头','床垫'],  correct:2, details:['睡觉时枕着','放在床头','软软的'] },
+    { img:'🛌', name:'被子',   options:['枕头','毯子','被子','床单'],  correct:2, details:['睡觉时盖着暖和','冬天要盖厚被子','早上叠整齐'] },
+    { img:'💊', name:'药瓶',   options:['罐子','茶叶','药瓶','调料'],  correct:2, details:['里面装着药','按时吃药很重要','不能乱吃'] },
+    { img:'🫖', name:'水壶',   options:['茶杯','水壶','锅','桶'],      correct:1, details:['用来烧水的','水烧开了再喝','热水壶要小心'] },
+  ],
+
+  // ── 水果 (12 cards) ─────────────────────────────────────────
   fruit: [
-    { img:'🍎', options:['鸭梨','西瓜','西红柿','苹果'], correct:3, details:['常见水果，红色或绿色','富含维生素C，有益健康','可以直接吃，也可以榨汁'] },
-    { img:'🍊', options:['苹果','橘子','柠檬','草莓'], correct:1, details:['橙黄色的圆形水果','味道酸甜，富含维生素C','冬天常见，可以剥皮吃'] },
-    { img:'🍇', options:['蓝莓','葡萄','樱桃','桃子'], correct:1, details:['一串串生长在藤上','可以酿成葡萄酒','颜色有紫色和绿色'] },
-    { img:'🍓', options:['西瓜','苹果','草莓','橙子'], correct:2, details:['红色心形小水果','表面有细小的种子','味道甜美，春天成熟'] },
+    { img:'🍎', name:'苹果',   options:['梨','西瓜','西红柿','苹果'],  correct:3, details:['红色圆圆的','可以直接吃','甜甜的很好吃'] },
+    { img:'🍌', name:'香蕉',   options:['香蕉','黄瓜','玉米','芒果'],  correct:0, details:['黄色弯弯的','剥皮吃','软软的很甜'] },
+    { img:'🍊', name:'橙子',   options:['苹果','橘子','橙子','柠檬'],  correct:2, details:['橙色圆圆的','味道很甜','剥皮吃'] },
+    { img:'🍇', name:'葡萄',   options:['蓝莓','草莓','葡萄','樱桃'],  correct:2, details:['紫色小小的','一串一串的','可以酿酒'] },
+    { img:'🍉', name:'西瓜',   options:['哈密瓜','西瓜','冬瓜','南瓜'],correct:1, details:['绿色大大的','红色的瓤','夏天吃很解渴'] },
+    { img:'🍓', name:'草莓',   options:['西瓜','苹果','草莓','橙子'],  correct:2, details:['红色小小的','表面有小种子','味道甜美'] },
+    { img:'🍐', name:'梨',     options:['苹果','梨','桃子','柠檬'],    correct:1, details:['黄色的','水分很多','清甜可口'] },
+    { img:'🍑', name:'桃子',   options:['苹果','杏子','桃子','李子'],  correct:2, details:['粉红色的','软软的','桃子皮有点毛'] },
+    { img:'🍋', name:'柠檬',   options:['橙子','香蕉','菠萝','柠檬'],  correct:3, details:['黄色的','味道很酸','泡水喝'] },
+    { img:'🥭', name:'芒果',   options:['木瓜','芒果','柿子','橙子'],  correct:1, details:['黄色的','很香甜','热带水果'] },
+    { img:'🍒', name:'樱桃',   options:['草莓','樱桃','枸杞','葡萄'],  correct:1, details:['红色小小的','有个小梗','两个一对'] },
+    { img:'🍍', name:'菠萝',   options:['椰子','菠萝','榴莲','火龙果'],correct:1, details:['黄色的','外面有刺','味道香甜'] },
   ],
+
+  // ── 蔬菜 (12 cards) ─────────────────────────────────────────
   veg: [
-    { img:'🥦', options:['白菜','芹菜','西兰花','生菜'], correct:2, details:['绿色的十字形蔬菜','富含维生素和纤维素','可以炒着吃或凉拌'] },
-    { img:'🥕', options:['白萝卜','胡萝卜','红薯','土豆'], correct:1, details:['橙色的细长根茎蔬菜','富含胡萝卜素，有益视力','可以生吃或炒熟吃'] },
-    { img:'🍅', options:['苹果','西瓜','西红柿','草莓'], correct:2, details:['红色圆形，既是蔬菜也是水果','富含番茄红素','可以炒蛋，也可以直接吃'] },
-    { img:'🌽', options:['香蕉','玉米','竹笋','甘蔗'], correct:1, details:['黄色的粒状蔬菜','可以煮着吃或烤着吃','甜玉米味道香甜'] },
+    { img:'🍅', name:'西红柿', options:['苹果','西瓜','西红柿','草莓'],correct:2, details:['红色圆圆的','炒鸡蛋很好吃','也叫番茄'] },
+    { img:'🥒', name:'黄瓜',   options:['西葫芦','黄瓜','苦瓜','丝瓜'],correct:1, details:['绿色长长的','可以生吃','凉拌很清爽'] },
+    { img:'🥕', name:'胡萝卜', options:['白萝卜','胡萝卜','红薯','土豆'],correct:1, details:['橙色长长的','营养很好','可以生吃炒着吃'] },
+    { img:'🥬', name:'白菜',   options:['菠菜','白菜','生菜','卷心菜'],correct:1, details:['绿白色的','一层一层的','炒着吃或做汤'] },
+    { img:'🥔', name:'土豆',   options:['地瓜','芋头','土豆','红薯'],  correct:2, details:['黄褐色圆圆的','炒着吃','也能做土豆泥'] },
+    { img:'🍆', name:'茄子',   options:['紫薯','茄子','青椒','洋葱'],  correct:1, details:['紫色长长的','炒着吃','烧茄子很好吃'] },
+    { img:'🫑', name:'青椒',   options:['黄椒','红椒','青椒','辣椒'],  correct:2, details:['绿色的','炒菜用','不太辣'] },
+    { img:'🧅', name:'洋葱',   options:['大蒜','洋葱','土豆','萝卜'],  correct:1, details:['黄色圆圆的','切了会流眼泪','炒菜很香'] },
+    { img:'🫘', name:'豆腐',   options:['豆腐','鸡蛋','粉条','面条'],  correct:0, details:['白色软软的','用大豆做的','可以炒可以煮汤'] },
+    { img:'🌽', name:'玉米',   options:['香蕉','玉米','竹笋','甘蔗'],  correct:1, details:['黄色长长的','一粒一粒的','可以煮着吃'] },
+    { img:'🎃', name:'南瓜',   options:['西瓜','冬瓜','南瓜','哈密瓜'],correct:2, details:['橙黄色圆圆的','熬粥喝很甜','秋天的蔬菜'] },
+    { img:'🥦', name:'菠菜',   options:['芹菜','韭菜','菠菜','油菜'],  correct:2, details:['绿色叶子','炒着吃','营养丰富'] },
   ],
-  animal: [
-    { img:'🐱', options:['狗','猫','兔子','熊猫'], correct:1, details:['常见家养宠物','喜欢独处，会舔毛清洁自己','叫声是"喵"'] },
-    { img:'🐶', options:['猫','狼','狗','狐狸'], correct:2, details:['人类最忠实的伴侣','会摇尾巴表示高兴','叫声是"汪"'] },
-    { img:'🐼', options:['北极熊','棕熊','熊猫','考拉'], correct:2, details:['中国国宝，黑白相间','主要吃竹子','生活在四川的山林里'] },
-    { img:'🐰', options:['松鼠','仓鼠','兔子','老鼠'], correct:2, details:['长耳朵、短尾巴','喜欢吃胡萝卜和青草','动作灵活，跑得很快'] },
+
+  // ── 交通工具 (12 cards) ──────────────────────────────────────
+  transport: [
+    { img:'🚌', name:'公交车', options:['火车','公交车','地铁','大巴'], correct:1, details:['坐公交车出门','有很多座位','站牌等车'] },
+    { img:'🚕', name:'出租车', options:['私家车','出租车','救护车','警车'],correct:1, details:['打车用的','黄色的','叫滴滴也行'] },
+    { img:'🚇', name:'地铁',   options:['火车','轻轨','地铁','高铁'],  correct:2, details:['在地下跑的火车','不堵车','要买票进站'] },
+    { img:'🚲', name:'自行车', options:['摩托车','自行车','电动车','三轮车'],correct:1, details:['两个轮子','骑着走','要蹬脚踏板'] },
+    { img:'🛵', name:'电动车', options:['摩托车','自行车','电动车','汽车'],correct:2, details:['充电骑的车','比自行车省力','记得戴头盔'] },
+    { img:'🚗', name:'小汽车', options:['公交车','卡车','小汽车','面包车'],correct:2, details:['四个轮子','坐车出门','需要驾照'] },
+    { img:'🚂', name:'火车',   options:['高铁','地铁','火车','有轨电车'],correct:2, details:['铁轨上跑的','可以去远处','需要买票'] },
+    { img:'✈️', name:'飞机',   options:['直升机','飞机','无人机','热气球'],correct:1, details:['在天上飞','去很远的地方','要提前买票'] },
+    { img:'🏍️', name:'摩托车', options:['自行车','电动车','摩托车','三轮车'],correct:2, details:['两个轮子','比自行车快','要戴头盔'] },
+    { img:'🚑', name:'救护车', options:['警车','消防车','救护车','校车'],correct:2, details:['白色的','生病了叫救护车','120是它的号码'] },
+    { img:'🚒', name:'消防车', options:['救护车','洒水车','消防车','警车'],correct:2, details:['红色的','着火了来救火','119是它的号码'] },
+    { img:'🚢', name:'轮船',   options:['帆船','游艇','轮船','渡船'],  correct:2, details:['在水上开的大船','可以运货运人','声音很响'] },
   ],
+
+  // ── 家具 (10 cards) ──────────────────────────────────────────
+  furniture: [
+    { img:'🛏️', name:'床',     options:['沙发','床','椅子','躺椅'],    correct:1, details:['晚上睡觉的地方','有枕头被子','睡个好觉'] },
+    { img:'🛋️', name:'沙发',   options:['椅子','沙发','床','凳子'],    correct:1, details:['坐着休息的','软软的','看电视坐沙发'] },
+    { img:'🪑', name:'椅子',   options:['沙发','凳子','椅子','床'],    correct:2, details:['坐着用的','有靠背','吃饭坐椅子'] },
+    { img:'🍽️', name:'桌子',   options:['床','台子','桌子','架子'],    correct:2, details:['吃饭放东西用的','有四条腿','饭菜放桌上'] },
+    { img:'🗄️', name:'衣柜',   options:['书柜','冰箱','衣柜','橱柜'],  correct:2, details:['放衣服的柜子','衣服挂进去','打开门拿衣服'] },
+    { img:'🧊', name:'冰箱',   options:['洗衣机','冰箱','微波炉','烤箱'],correct:1, details:['放食物保鲜的','冷冷的','食物放进去不容易坏'] },
+    { img:'🫧', name:'洗衣机', options:['冰箱','洗碗机','洗衣机','烘干机'],correct:2, details:['洗衣服用的','放洗衣粉','衣服脏了放进去'] },
+    { img:'📺', name:'电视',   options:['电脑','投影仪','电视','显示器'],correct:2, details:['看节目用的','遥控器控制','新闻电视剧都能看'] },
+    { img:'❄️', name:'空调',   options:['风扇','暖气','空调','加湿器'], correct:2, details:['热了吹冷气','冷了吹热气','记得设温度'] },
+    { img:'📡', name:'微波炉', options:['烤箱','微波炉','电饭锅','电热壶'],correct:1, details:['热饭菜用的','放进去转一转','很方便'] },
+  ],
+
+  // ── 随机 ────────────────────────────────────────────────────
+  random: [],
 };
+
+// ── Deck metadata (for home screen display) ───────────────────
+const DECKS_META = [
+  { key:'daily',     name:'日常用品' },
+  { key:'fruit',     name:'水果'     },
+  { key:'veg',       name:'蔬菜'     },
+  { key:'transport', name:'交通工具' },
+  { key:'furniture', name:'家具'     },
+];
 
 function getDeck(key) {
   if (key === 'random') {
-    const all = [...DECKS.fruit, ...DECKS.veg, ...DECKS.animal];
-    return all.sort(() => Math.random() - .5).slice(0, 6);
+    const all = Object.entries(DECKS)
+      .filter(([k]) => k !== 'random')
+      .flatMap(([, cards]) => cards);
+    return all.sort(() => Math.random() - .5).slice(0, 8);
   }
-  return DECKS[key] || DECKS.fruit;
+  return DECKS[key] || [];
 }
 
 // ── Session state ──────────────────────────────────────────────
@@ -672,18 +766,29 @@ const NDUR = 6000;
 let THRESH = 5000, SPEAK_DELAY = 1200;
 
 // ── Home nav ───────────────────────────────────────────────────
+function renderDeckList() {
+  const grid = document.getElementById('deck-grid');
+  grid.innerHTML = DECKS_META.map((m, i) => {
+    const isRandom = m.key === 'random';
+    const stats = isRandom ? { due: '—', new: '—' } : getDeckStats(m.key);
+    const dueVal = isRandom ? '—' : (stats.due > 0 ? stats.due : '0');
+    const newVal = isRandom ? '—' : (stats.new > 0 ? stats.new : '0');
+    return `<div class="deck-card${i===0?' selected':''}" data-deck="${m.key}" onclick="selectDeck(this)">
+      <div class="deck-info"><div class="deck-name">${m.name}</div></div>
+      <div class="deck-stats">
+        <div class="deck-stat"><span class="deck-stat-num due" data-deck="${m.key}">${dueVal}</span><span class="deck-stat-lbl">到期</span></div>
+        <div class="deck-stat"><span class="deck-stat-num new-c" data-deck="${m.key}">${newVal}</span><span class="deck-stat-lbl">新卡</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function selectDeck(el) {
-  warmupSpeech();  // iOS: unlock speech on first touch
+  warmupSpeech();
   document.querySelectorAll('.deck-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   currentDeck = el.dataset.deck;
 }
-function selectMode(el) {
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  currentMode = el.dataset.mode;
-}
-
 // Simulated SRS stats — in a real app these come from a spaced-repetition engine.
 // For now: "due" = cards whose last-seen date <= today, "new" = never seen.
 function getDeckStats(key) {
@@ -701,23 +806,29 @@ function getDeckStats(key) {
 }
 
 function updateDeckStats() {
-  ['fruit','veg','animal'].forEach(key => {
-    const stats = getDeckStats(key);
-    const dueEl = document.querySelector(`.deck-stat-num.due[data-deck="${key}"]`);
-    const newEl = document.querySelector(`.deck-stat-num.new-c[data-deck="${key}"]`);
+  DECKS_META.filter(m => m.key !== 'random').forEach(m => {
+    const stats = getDeckStats(m.key);
+    const dueEl = document.querySelector(`.deck-stat-num.due[data-deck="${m.key}"]`);
+    const newEl = document.querySelector(`.deck-stat-num.new-c[data-deck="${m.key}"]`);
     if (dueEl) dueEl.textContent = stats.due > 0 ? stats.due : '0';
     if (newEl) newEl.textContent = stats.new > 0 ? stats.new : '0';
   });
 }
 
-function startSession() {
+function startBrowse() {
   warmupSpeech();
+  _launch('browse');
+}
+function startQuiz() {
+  warmupSpeech();
+  _launch('quiz');
+}
+function _launch(mode) {
+  currentMode = mode;
   Qs = getDeck(currentDeck);
-  if (currentMode === 'browse') {
-    Qs = Qs.map(q => ({ ...q, browse: true }));
-  }
+  if (mode === 'browse') Qs = Qs.map(q => ({ ...q, browse: true }));
   qIdx = 0;
-  document.getElementById('nxt-lbl').textContent = currentMode === 'browse' ? '下一张' : '下一题';
+  document.getElementById('nxt-lbl').textContent = mode === 'browse' ? '下一张' : '下一题';
   showScreen('screen-quiz');
   render();
 }
@@ -725,6 +836,7 @@ function goHome() {
   stopNRing(); stopAllPromptTimers();
   speechSynthesis.cancel();
   document.getElementById('home-diamond-count').textContent = diamonds;
+  renderDeckList();
   updateDeckStats();
   updateStreak();
   showScreen('screen-home');
@@ -949,8 +1061,9 @@ function render() {
 }
 
 function revealBrowse(q) {
+  const answerName = q.name || q.options[q.correct];
   document.getElementById('answer-panel').className = 'answer-panel';
-  document.getElementById('ans-word').textContent = q.options[q.correct];
+  document.getElementById('ans-word').textContent = answerName;
   document.getElementById('ans-word').className = 'answer-word';
   const detailsEl = document.getElementById('ans-details');
   detailsEl.innerHTML = '';
@@ -962,8 +1075,7 @@ function revealBrowse(q) {
     setTimeout(()=>item.classList.add('show'), 300 + i*120);
   });
   setTimeout(()=>document.getElementById('answer-panel').classList.add('show'), 30);
-  speak(q.options[q.correct], SPEAK_DELAY);
-  // Both manual tap AND auto countdown in browse mode
+  speak(answerName, SPEAK_DELAY);
   setTimeout(()=>{
     const nb=document.getElementById('nxtbtn');
     nb.classList.add('show');
@@ -1011,11 +1123,12 @@ function onSubmit() {
 // ── Reveal ─────────────────────────────────────────────────────
 function revealAnswer() {
   revealed=true; stopAllPromptTimers();
-  const q=Qs[qIdx], isOk=sel===q.correct, correctWord=q.options[q.correct];
+  const q=Qs[qIdx], isOk=sel===q.correct;
+  const answerName = q.name || q.options[q.correct];
 
   document.getElementById('opts-zone').style.display='none';
   const panel=document.getElementById('answer-panel');
-  document.getElementById('ans-word').textContent=correctWord;
+  document.getElementById('ans-word').textContent=answerName;
   document.getElementById('ans-word').className='answer-word';
   const detailsEl=document.getElementById('ans-details');
   detailsEl.innerHTML='';
@@ -1030,7 +1143,7 @@ function revealAnswer() {
 
   if (isOk) { tone('ok'); setTimeout(spawnConfetti,200); setTimeout(addDiamond,400); }
 
-  speak(correctWord, SPEAK_DELAY);
+  speak(answerName, SPEAK_DELAY);
   document.getElementById('subbtn').classList.add('gone');
   setTimeout(()=>{
     const nb=document.getElementById('nxtbtn');
@@ -1097,6 +1210,29 @@ function spawnConfetti(){
   })();
 }
 
+// ── Force refresh (PWA) ───────────────────────────────────────
+function forceRefresh() {
+  const btn = document.querySelector('.home-refresh-btn');
+  if (btn) {
+    btn.classList.add('spinning');
+    btn.addEventListener('animationend', () => btn.classList.remove('spinning'), { once: true });
+  }
+  // Clear caches if Service Worker available, then reload
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      Promise.all(regs.map(r => r.unregister())).then(() => {
+        if ('caches' in window) {
+          caches.keys().then(keys =>
+            Promise.all(keys.map(k => caches.delete(k)))
+          ).then(() => location.reload(true));
+        } else { location.reload(true); }
+      });
+    });
+  } else {
+    setTimeout(() => location.reload(true), 400);
+  }
+}
+
 // ── Settings ───────────────────────────────────────────────────
 function openSettings(){ document.getElementById('settings-overlay').classList.add('open'); }
 function closeSettings(){ document.getElementById('settings-overlay').classList.remove('open'); }
@@ -1115,6 +1251,7 @@ function toggleTheme(checkbox){
   if(isDark)document.documentElement.classList.add('dark');
   window.addEventListener('load',()=>{
     const tog=document.getElementById('dark-toggle');if(tog)tog.checked=isDark;
+    renderDeckList();
     updateDeckStats();
     updateStreak();
   });
