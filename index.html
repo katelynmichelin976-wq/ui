@@ -166,7 +166,7 @@
         opacity: 1;
       }
       100% {
-        transform: scale(4);
+        transform: scale(8);
         opacity: 0;
       }
     }
@@ -223,7 +223,7 @@
 
   <!-- 标题 -->
   <h1 class="title">✨ 轻轻一点 ✨</h1>
-  <p class="version">V0.6</p>
+  <p class="version">V0.7</p>
 
   <!-- 按钮容器 -->
   <div class="button-container">
@@ -260,6 +260,10 @@
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
+      // iOS 需要恢复 suspended 状态的 AudioContext
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
       return audioCtx;
     }
 
@@ -268,33 +272,31 @@
       const ctx = initAudio();
       const now = ctx.currentTime;
 
-      // 金币落下的声音 - 快速下降的高频音
+      // 金币碰撞主音 - 高频短促
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(2000, now);
-      osc1.frequency.exponentialRampToValueAtTime(800, now + 0.1);
-      gain1.gain.setValueAtTime(0.3, now);
-      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc1.type = 'square'; // 方波更清脆
+      osc1.frequency.setValueAtTime(3500, now);
+      osc1.frequency.exponentialRampToValueAtTime(1500, now + 0.05);
+      gain1.gain.setValueAtTime(0.4, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
       osc1.connect(gain1);
       gain1.connect(ctx.destination);
       osc1.start(now);
-      osc1.stop(now + 0.15);
+      osc1.stop(now + 0.08);
 
-      // 金币泛音
-      setTimeout(() => {
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(3000, ctx.currentTime);
-        osc2.frequency.exponentialRampToValueAtTime(1500, ctx.currentTime + 0.08);
-        gain2.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.start(ctx.currentTime);
-        osc2.stop(ctx.currentTime + 0.1);
-      }, 50);
+      // 金币泛音 - 金属感
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(5000, now);
+      osc2.frequency.exponentialRampToValueAtTime(2000, now + 0.03);
+      gain2.gain.setValueAtTime(0.25, now);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now);
+      osc2.stop(now + 0.06);
     }
 
     // 生成收银机音效
