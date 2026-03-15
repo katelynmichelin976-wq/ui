@@ -130,7 +130,8 @@
     }
 
     .btn-complete:active {
-      transform: scale(0.95);
+      transform: scale(0.95) translateY(2px);
+      box-shadow: 0 2px 10px rgba(45, 212, 191, 0.3);
     }
 
     .btn-victory {
@@ -144,7 +145,8 @@
     }
 
     .btn-victory:active {
-      transform: scale(0.95);
+      transform: scale(0.95) translateY(2px);
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
     }
 
     /* 波纹效果 */
@@ -216,7 +218,7 @@
 
   <!-- 标题 -->
   <h1 class="title">✨ 轻轻一点 ✨</h1>
-  <p class="version">V0.2</p>
+  <p class="version">V0.3</p>
 
   <!-- 按钮容器 -->
   <div class="button-container">
@@ -434,9 +436,13 @@
     }
 
     // 完成按钮点击
-    document.getElementById('completeBtn').addEventListener('click', function(e) {
-      createRipple(e, this);
+    const completeBtn = document.getElementById('completeBtn');
+    completeBtn.addEventListener('touchstart', function(e) {
+      e.preventDefault();
       vibrate();
+    }, { passive: false });
+    completeBtn.addEventListener('click', function(e) {
+      createRipple(e, this);
       playCompleteSound();
     });
 
