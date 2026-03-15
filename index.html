@@ -153,14 +153,19 @@
     .ripple {
       position: absolute;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.4);
+      border: 3px solid rgba(255, 255, 255, 0.8);
+      background: transparent;
       transform: scale(0);
-      animation: ripple-anim 0.6s ease-out;
+      animation: ripple-anim 0.5s ease-out;
       pointer-events: none;
     }
 
     @keyframes ripple-anim {
-      to {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+      100% {
         transform: scale(4);
         opacity: 0;
       }
@@ -218,7 +223,7 @@
 
   <!-- 标题 -->
   <h1 class="title">✨ 轻轻一点 ✨</h1>
-  <p class="version">V0.5</p>
+  <p class="version">V0.6</p>
 
   <!-- 按钮容器 -->
   <div class="button-container">
@@ -258,36 +263,38 @@
       return audioCtx;
     }
 
-    // 生成完成确认音效（短促的叮声）
+    // 生成金币音效
     function playCompleteSound() {
       const ctx = initAudio();
       const now = ctx.currentTime;
 
-      // 收银机入账的清脆叮声
-      // 第一个高音叮
+      // 金币落下的声音 - 快速下降的高频音
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(1200, now);
-      osc1.frequency.exponentialRampToValueAtTime(1500, now + 0.02);
+      osc1.frequency.setValueAtTime(2000, now);
+      osc1.frequency.exponentialRampToValueAtTime(800, now + 0.1);
       gain1.gain.setValueAtTime(0.3, now);
-      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
       osc1.connect(gain1);
       gain1.connect(ctx.destination);
       osc1.start(now);
-      osc1.stop(now + 0.12);
+      osc1.stop(now + 0.15);
 
-      // 第二个泛音
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(2400, now + 0.01);
-      gain2.gain.setValueAtTime(0.15, now + 0.01);
-      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.start(now + 0.01);
-      osc2.stop(now + 0.1);
+      // 金币泛音
+      setTimeout(() => {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(3000, ctx.currentTime);
+        osc2.frequency.exponentialRampToValueAtTime(1500, ctx.currentTime + 0.08);
+        gain2.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(ctx.currentTime);
+        osc2.stop(ctx.currentTime + 0.1);
+      }, 50);
     }
 
     // 生成收银机音效
