@@ -147,7 +147,6 @@ body {
   font-size: 14px; font-weight: 800;
   color: var(--ocean);
 }
-.home-icon-count.streak { color: #f97316; }
 
 /* Gear button */
 .home-gear-btn {
@@ -225,136 +224,157 @@ body {
 /* ════════════════════════════════
    QUIZ SCREEN
    ════════════════════════════════ */
-#screen-quiz {
-  overflow: hidden;
-}
+#screen-quiz { overflow:hidden; }
 
-/* Top bar */
+/* ── Top bar: back + progress ── */
 .bar {
-  width:100%; max-width:500px;
+  width:100%; max-width:500px; flex-shrink:0;
   display:flex; align-items:center; gap:12px;
-  padding: calc(10px + env(safe-area-inset-top, 44px)) 18px 14px;
-  flex-shrink: 0;
+  padding: calc(10px + env(safe-area-inset-top, 44px)) 16px 12px;
 }
 .back-btn {
   background:none; border:none; cursor:pointer; padding:4px;
   -webkit-tap-highlight-color:transparent;
   color:var(--text2); display:flex; align-items:center; flex-shrink:0;
 }
-/* Thicker, more visible progress bar */
-.ptrack {
-  flex:1; height:8px; background:var(--bd2);
-  border-radius:4px; overflow:hidden;
-}
-.pfill {
-  height:100%; background:var(--ocean);
-  border-radius:4px;
-  transition:width .55s cubic-bezier(.4,0,.2,1);
-}
+.ptrack { flex:1; height:8px; background:var(--bd2); border-radius:4px; overflow:hidden; }
+.pfill  { height:100%; background:var(--ocean); border-radius:4px; transition:width .55s cubic-bezier(.4,0,.2,1); }
 
-/* Diamond counter in quiz bar */
-.diamond-counter {
-  display: flex; align-items: center; gap: 4px;
-  flex-shrink: 0;
-  position: relative;
-}
-.dicon { font-size: 18px; line-height:1; }
-.dcount {
-  font-size: 14px; font-weight: 800;
-  color: var(--diamond);
-  min-width: 18px;
-  transition: transform .2s;
-}
-/* Diamond burst canvas */
-#dc { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:998; }
-
-/* +1 float label */
-.diamond-plus {
-  position: absolute;
-  top: -4px; right: -2px;
-  font-size: 13px; font-weight: 800;
-  color: var(--diamond);
-  animation: dplus .7s ease-out forwards;
-  pointer-events: none;
-}
-@keyframes dplus {
-  0%  { opacity:1; transform:translateY(0) scale(1.2); }
-  100%{ opacity:0; transform:translateY(-24px) scale(.8); }
-}
 .gear-btn {
   background:none; border:none; cursor:pointer; padding:4px;
   -webkit-tap-highlight-color:transparent;
   color:var(--text2); display:flex; align-items:center; flex-shrink:0;
 }
 
-/* Content area */
-.content {
-  flex:1; width:100%; max-width:500px;
-  display:flex; flex-direction:column;
-  padding:0 14px; gap:10px; min-height:0;
+/* ── Image zone: full-width square, NEVER changes size ── */
+.img-zone {
+  width:100%; max-width:500px; flex-shrink:0;
+  padding:0 16px;
+}
+.target-card-wrap {
+  width:100%; aspect-ratio:1/1;
+  position:relative;
 }
 
-/* Target card — fixed height for 4:3 photo */
-.target-card {
-  background:var(--surf);
-  border-radius:var(--r); border:1px solid var(--bd); box-shadow:var(--sh);
-  display:flex; align-items:center; justify-content:center;
-  height:220px; flex-shrink:0;
-  overflow:hidden; padding:0;
+/* ── Middle zone: shared by opts and answer-panel ── */
+.mid-zone {
+  flex:1; min-height:0;
+  width:100%; max-width:500px;
+  padding:0 16px;
+  display:flex; flex-direction:column;
 }
+
+/* legacy .content used for slide animation */
+.content {
+  flex:1; min-height:0;
+  width:100%; max-width:500px;
+  display:flex; flex-direction:column;
+  gap:10px;
+  transition:opacity .2s, transform .2s;
+}
+
+/* Image wrapper — same inset as mid-zone */
+.img-zone {
+  flex-shrink:0;
+  padding:0 16px;
+}
+
+/* Mid zone: fills everything between image and btm */
+.mid-zone {
+  flex:1; min-height:0;
+  padding:0 16px 8px;
+  display:flex; flex-direction:column;
+}
+
+/* Target card — 1:1 square, capped height, always fixed */
+.target-card {
+  background:var(--surf2);
+  border-radius:var(--r);
+  border:1px solid var(--bd);
+  box-shadow:var(--sh);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; overflow:hidden; padding:0; position:relative;
+  width:100%; aspect-ratio:1/1;
+  max-height:44vh;
+  animation:cardGlow 2.8s ease-in-out infinite;
+}
+@keyframes cardGlow {
+  0%,100% { box-shadow: var(--sh), 0 0 0 0 rgba(14,165,233,0); }
+  50%      { box-shadow: var(--sh), 0 0 0 8px rgba(14,165,233,0.22); }
+}
+html.dark .target-card { animation: cardGlowDark 2.8s ease-in-out infinite; }
+@keyframes cardGlowDark {
+  0%,100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+  50%      { box-shadow: 0 0 0 10px rgba(56,189,248,0.32); }
+}
+.target-card > .target-img { border-radius:var(--r); overflow:hidden; }
+/* Stop breathing glow when answer is revealed */
+.revealed .target-card { animation:none; box-shadow:var(--sh); }
+
 .target-img {
   width:100%; height:100%;
   border-radius:var(--r);
   background:var(--surf2);
   display:flex; align-items:center; justify-content:center;
-  font-size:140px; line-height:1;
+  font-size:clamp(80px, 25vh, 180px); line-height:1;
   overflow:hidden;
   animation:imgPop .38s cubic-bezier(.34,1.56,.64,1);
 }
-/* When real <img> is used inside target-img */
+/* Real photo: fills square, cropped to center */
 .target-img img {
   width:100%; height:100%;
   object-fit:cover; object-position:center;
-  border-radius:var(--r);
-  display:block;
+  display:block; border-radius:var(--r);
 }
 @keyframes imgPop{from{transform:scale(.78);opacity:0}to{transform:scale(1);opacity:1}}
 .instr {
   display:flex; align-items:center; justify-content:center;
-  gap:7px; transition:opacity .3s; flex-shrink:0;
-  padding:2px 0;
+  gap:7px; transition:opacity .3s; flex-shrink:0; padding:2px 0;
 }
-.dots  { display:flex; gap:4px; }
-.dot   { width:7px; height:7px; border-radius:50%; background:var(--ocean); animation:dp 1.5s ease-in-out infinite; }
+.dots { display:flex; gap:4px; }
+.dot  { width:7px; height:7px; border-radius:50%; background:var(--ocean); animation:dp 1.5s ease-in-out infinite; }
 .dot:nth-child(2){animation-delay:.17s}.dot:nth-child(3){animation-delay:.34s}
 @keyframes dp{0%,70%,100%{transform:scale(.5);opacity:.3}35%{transform:scale(1);opacity:1}}
 .instr-txt { font-size:14px; color:var(--text2); font-weight:500; }
 
-/* Options zone — fills remaining space */
+/* Options zone — explicit height matching image; buttons fill it */
 .opts-zone {
-  flex:1; min-height:0; display:flex; flex-direction:column;
+  width:100%; flex-shrink:0;
+  display:flex; flex-direction:column;
   background:var(--surf2); border-radius:var(--r);
   border:1px solid var(--bd); padding:8px;
+  height:var(--opts-zone-h, auto);
 }
 .opts {
-  display:grid; grid-template-columns:1fr 1fr; gap:8px;
-  flex:1; min-height:0;
+  flex:1;
+  display:flex; flex-direction:column; gap:8px;
 }
 .opt {
+  flex:1; height:var(--opt-btn-h, auto);
   background:var(--surf); border:2px solid var(--bd2);
   border-radius:var(--rsm); cursor:pointer; outline:none;
   -webkit-tap-highlight-color:transparent; touch-action:manipulation;
   position:relative; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
   transition:border-color .18s, background .18s, transform .1s, opacity .2s;
-  min-height:0;
 }
-.opt:active{transform:scale(.965)}
+.opt:active{transform:scale(.98)}
 .otxt {
-  font-size:24px; font-weight:700;
-  color:var(--text); text-align:center; line-height:1.2;
+  font-size:var(--fs-opt, 26px); font-weight:700; letter-spacing:var(--ls-opt, .06em);
+  color:var(--text); text-align:center; line-height:1.3;
   word-break:keep-all; transition:color .18s;
+  padding:0 16px;
 }
+
+/* Phrase input in settings */
+.phrase-input {
+  width:100%; padding:9px 12px;
+  border:1.5px solid var(--bd2); border-radius:10px;
+  background:var(--surf2); color:var(--text);
+  font-family:inherit; font-size:15px;
+  outline:none; transition:border-color .15s;
+}
+.phrase-input:focus { border-color:var(--ocean); }
 .rpl  { position:absolute; border-radius:50%; background:var(--blue-lt); transform:scale(0); animation:rout .5s ease-out forwards; pointer-events:none; }
 @keyframes rout{to{transform:scale(5);opacity:0}}
 .opt.sel { border-color:var(--ocean); background:var(--blue-bg); }
@@ -369,7 +389,7 @@ body {
 .opt.dim    { opacity:.25; pointer-events:none; }
 .opt.dim::after { display:none; }
 
-/* Answer panel — same fixed height as opts-zone area */
+/* Answer panel — fills mid-zone, same space as opts-zone */
 .answer-panel {
   flex:1; min-height:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
@@ -381,7 +401,7 @@ body {
 }
 .answer-panel.show { opacity:1; transform:scale(1); }
 .answer-word {
-  font-size:48px; font-weight:800; letter-spacing:-1px;
+  font-size:var(--fs-ans, 48px); font-weight:800; letter-spacing:var(--ls-ans, -1px);
   color:var(--text); line-height:1; text-align:center;
   flex-shrink:0; margin-bottom:14px;
 }
@@ -397,32 +417,23 @@ body {
 }
 .detail-item.show { opacity:1; transform:translateY(0); }
 .detail-dot { width:6px; height:6px; border-radius:50%; background:var(--ocean); flex-shrink:0; margin-top:8px; }
-.detail-txt { font-size:15px; font-weight:500; color:var(--text2); line-height:1.5; }
+.detail-txt { font-size:var(--fs-hint, 15px); font-weight:500; color:var(--text2); line-height:1.5; letter-spacing:var(--ls-hint, 0); }
 
-/* Bottom */
+/* Bottom — collapses when nxtbtn hidden */
 .btm {
   width:100%; max-width:500px; flex-shrink:0;
-  padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 20px));
-  display:flex; flex-direction:column; gap:10px;
+  padding: 0 16px;
+  display:flex; flex-direction:column;
 }
-.subbtn {
-  width:100%; height:64px; border-radius:var(--r);
-  border:2px solid var(--bd2);
-  background:var(--surf); color:var(--text2);
-  font-family:inherit; font-size:17px; font-weight:700;
-  cursor:pointer; outline:none;
-  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
-  display:flex; align-items:center; justify-content:center;
-  position:relative; overflow:visible;
-  transition:background .28s, border-color .28s, color .28s, box-shadow .28s, opacity .22s, transform .18s;
+.btm:has(.nxtbtn.show) {
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 20px));
 }
-.subbtn:active{transform:scale(.97)}
-.subbtn.on {
-  background:var(--ocean); border-color:var(--ocean); color:#fff;
-  box-shadow:0 4px 0 var(--ocean-dk);
+/* Fallback for Safari < 15.4 without :has */
+.btm.active {
+  padding: 8px 16px calc(12px + env(safe-area-inset-bottom, 20px));
 }
-.subbtn.on:active { transform:translateY(2px); box-shadow:0 2px 0 var(--ocean-dk); }
-.subbtn.gone { opacity:0; pointer-events:none; height:0; margin:0; padding:0; border:none; overflow:hidden; transition:height .22s, opacity .18s; }
+/* Submit button — hidden (auto-submit replaces it) */
+.subbtn { display:none !important; }
 .ntip {
   position:absolute; bottom:calc(100% + 9px); left:50%;
   transform:translateX(-50%) scale(.9);
@@ -436,23 +447,27 @@ body {
 .ntip.show { opacity:1; transform:translateX(-50%) scale(1); }
 @keyframes ndg{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 .ndg{animation:ndg .32s ease}
+
+/* nxtbtn: hidden during quiz, shown after answer — no animation */
 .nxtbtn {
-  width:100%; height:0; overflow:hidden; border-radius:var(--r); border:none;
+  width:100%; height:66px; border-radius:var(--r); border:none;
   background:var(--ocean); color:#fff;
-  font-family:inherit; font-size:20px; font-weight:800;
+  font-family:inherit; font-size:var(--fs-btn, 20px); font-weight:800; letter-spacing:var(--ls-btn, 0);
   cursor:pointer; outline:none;
   -webkit-tap-highlight-color:transparent; touch-action:manipulation;
-  display:flex; align-items:center; justify-content:center; gap:10px;
-  opacity:0; transform:translateY(8px);
-  transition:height .3s cubic-bezier(.34,1.56,.64,1), opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+  display:none; align-items:center; justify-content:center; gap:10px;
   position:relative; overflow:hidden; flex-shrink:0;
   box-shadow:0 4px 0 var(--ocean-dk);
 }
-.nxtbtn.show { height:66px; opacity:1; transform:translateY(0); overflow:hidden; }
-.nxtbtn:active{ transform:translateY(2px); box-shadow:0 2px 0 var(--ocean-dk); }
+.nxtbtn.show {
+  display:flex;
+}
+.nxtbtn:active { transform:translateY(2px); box-shadow:0 2px 0 var(--ocean-dk); }
 .nring-svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-.nring-t { fill:none; stroke:rgba(255,255,255,.14); stroke-width:3; }
-.nring-p { fill:none; stroke:rgba(255,255,255,.72); stroke-width:3; stroke-linecap:round; }
+.nring-t { fill:none; stroke:transparent; stroke-width:3; }
+.nring-p { fill:none; stroke:transparent; stroke-width:3; stroke-linecap:round; }
+.nxtbtn.counting .nring-t { stroke:rgba(255,255,255,.14); }
+.nxtbtn.counting .nring-p { stroke:rgba(255,255,255,.72); }
 .nring-lbl { position:relative; z-index:1; }
 .nring-sec { position:relative; z-index:1; font-size:13px; font-weight:600; opacity:.6; min-width:16px; }
 
@@ -462,7 +477,7 @@ body {
 .sin {opacity:0;transform:translateX(22px)}
 
 /* ════════════════════════════════
-   SETTINGS DRAWER
+   SETTINGS DRAWER — Tab layout
    ════════════════════════════════ */
 .settings-overlay {
   position:fixed; inset:0; z-index:200;
@@ -475,19 +490,40 @@ body {
   transform:translateX(-50%) translateY(100%);
   width:100%; max-width:500px;
   background:var(--surf); border-radius:24px 24px 0 0;
-  border-top:0.5px solid var(--bd); padding:0 0 calc(16px + env(safe-area-inset-bottom, 16px));
+  border-top:0.5px solid var(--bd);
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 16px));
   transition:transform .32s cubic-bezier(.32,1,.36,1);
+  display:flex; flex-direction:column;
+  max-height:82vh;
 }
 .settings-overlay.open .settings-sheet { transform:translateX(-50%) translateY(0); }
-.sheet-handle { width:36px; height:4px; border-radius:2px; background:var(--bd2); margin:12px auto 0; }
-.sheet-title { font-size:15px; font-weight:700; color:var(--text); padding:14px 20px 10px; border-bottom:0.5px solid var(--bd); }
+.sheet-handle { width:36px; height:4px; border-radius:2px; background:var(--bd2); margin:12px auto 6px; flex-shrink:0; }
+/* Tab bar */
+.sheet-tabs {
+  display:flex; border-bottom:1px solid var(--bd);
+  flex-shrink:0; padding:0 16px;
+}
+.sheet-tab {
+  flex:1; text-align:center;
+  padding:10px 4px 9px;
+  font-size:13px; font-weight:600; color:var(--text3);
+  cursor:pointer; border-bottom:2px solid transparent;
+  transition:color .15s, border-color .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.sheet-tab.active { color:var(--ocean); border-bottom-color:var(--ocean); }
+/* Tab panels */
+.sheet-panels { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.sheet-panel { display:none; padding:0 0 8px; }
+.sheet-panel.active { display:block; }
+/* Rows */
 .sheet-section { padding:14px 20px 0; }
 .sheet-section-lbl { font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
 .sheet-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:0.5px solid var(--bd); }
 .sheet-row:last-child { border-bottom:none; }
 .sheet-row-lbl { flex:1; font-size:15px; font-weight:500; color:var(--text); }
 .sheet-row-val { font-size:14px; font-weight:700; color:var(--blue); min-width:34px; text-align:right; }
-.sheet-row input[type=range] { width:130px; accent-color:var(--blue); cursor:pointer; }
+.sheet-row input[type=range] { width:120px; accent-color:var(--blue); cursor:pointer; }
 .stoggle { position:relative; width:44px; height:26px; flex-shrink:0; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .stoggle input { opacity:0; width:0; height:0; position:absolute; }
 .stoggle-track { position:absolute; inset:0; background:var(--bd2); border-radius:13px; transition:background .25s; }
@@ -506,7 +542,6 @@ body {
 </head>
 <body>
 <canvas id="cc"></canvas>
-<canvas id="dc"></canvas>
 
 <!-- ══════════════ HOME SCREEN ══════════════ -->
 <div class="screen active" id="screen-home">
@@ -516,7 +551,7 @@ body {
     <div class="home-topbar">
       <div class="home-title-wrap">
         <span class="home-title">忆海拾光</span>
-        <span class="home-version">v0.2</span>
+        <span class="home-version">v0.4</span>
         <button class="home-refresh-btn" onclick="forceRefresh()" aria-label="强制刷新">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"/>
@@ -525,16 +560,6 @@ body {
         </button>
       </div>
       <div class="home-icons">
-        <!-- streak -->
-        <div class="home-icon-btn">
-          <span class="home-icon-emoji">🔥</span>
-          <span class="home-icon-count streak" id="home-streak">0</span>
-        </div>
-        <!-- diamonds -->
-        <div class="home-icon-btn">
-          <span class="home-icon-emoji">💎</span>
-          <span class="home-icon-count" id="home-diamond-count">0</span>
-        </div>
         <!-- settings gear -->
         <button class="home-gear-btn" onclick="openSettings()" aria-label="设置">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -564,6 +589,8 @@ body {
 
 <!-- ══════════════ QUIZ SCREEN ══════════════ -->
 <div class="screen" id="screen-quiz">
+
+  <!-- 1. Top bar: fixed -->
   <div class="bar">
     <button class="back-btn" onclick="goHome()" aria-label="返回">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -571,29 +598,32 @@ body {
       </svg>
     </button>
     <div class="ptrack"><div class="pfill" id="pfill" style="width:0%"></div></div>
-    <div class="diamond-counter" id="diamond-counter">
-      <span class="dicon">💎</span>
-      <span class="dcount" id="dcount">0</span>
-    </div>
   </div>
 
+  <!-- wrapper for slide animation -->
   <div class="content" id="content">
-    <div class="target-card">
-      <div class="target-img" id="timg"></div>
+
+    <!-- 2. Image zone: same inset as options below -->
+    <div class="img-zone">
+      <div class="target-card">
+        <div class="target-img" id="timg"></div>
+      </div>
     </div>
-    <div class="instr" id="instr">
-      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-      <span class="instr-txt">从下方选一个</span>
+
+    <!-- 3. Middle zone: opts OR answer-panel, fills all remaining space -->
+    <div class="mid-zone">
+      <div class="opts-zone" id="opts-zone">
+        <div class="opts" id="opts"></div>
+      </div>
+      <div class="answer-panel" id="answer-panel">
+        <div class="answer-word" id="ans-word"></div>
+        <div class="answer-details" id="ans-details"></div>
+      </div>
     </div>
-    <div class="opts-zone" id="opts-zone">
-      <div class="opts" id="opts"></div>
-    </div>
-    <div class="answer-panel" id="answer-panel">
-      <div class="answer-word" id="ans-word"></div>
-      <div class="answer-details" id="ans-details"></div>
-    </div>
+
   </div>
 
+  <!-- 4. Bottom: action buttons, fixed -->
   <div class="btm">
     <button class="subbtn" id="subbtn" ontouchstart="" onclick="onSubmit()">
       <span id="sublbl">确认答案</span>
@@ -611,31 +641,137 @@ body {
 <div class="settings-overlay" id="settings-overlay" onclick="closeSettingsIfOutside(event)">
   <div class="settings-sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">设置</div>
-    <div class="sheet-section">
-      <div class="sheet-section-lbl">显示</div>
-      <div class="sheet-row">
-        <span class="sheet-row-lbl">深色模式</span>
-        <label class="stoggle">
-          <input type="checkbox" id="dark-toggle" onchange="toggleTheme(this)">
-          <div class="stoggle-track"></div>
-          <div class="stoggle-thumb"></div>
-        </label>
-      </div>
+
+    <!-- Tab bar -->
+    <div class="sheet-tabs">
+      <div class="sheet-tab active" onclick="switchTab(0)">通用</div>
+      <div class="sheet-tab" onclick="switchTab(1)">语音</div>
+      <div class="sheet-tab" onclick="switchTab(2)">文字</div>
     </div>
-    <div class="sheet-section">
-      <div class="sheet-section-lbl">语音提示</div>
-      <div class="sheet-row">
-        <span class="sheet-row-lbl">提示间隔</span>
-        <input type="range" min="2" max="15" value="5" step="1" id="dbg-thresh" oninput="onThreshChange(this.value)">
-        <span class="sheet-row-val" id="dbg-thresh-val">5s</span>
+
+    <div class="sheet-panels">
+
+      <!-- Tab 0: 通用 -->
+      <div class="sheet-panel active" id="tab-0">
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">显示</div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">深色模式</span>
+            <label class="stoggle">
+              <input type="checkbox" id="dark-toggle" onchange="toggleTheme(this)">
+              <div class="stoggle-track"></div>
+              <div class="stoggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">选项</div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">选项数量</span>
+            <input type="range" min="2" max="4" value="3" step="1" id="opt-count" oninput="onOptCount(this.value)">
+            <span class="sheet-row-val" id="opt-count-val">3个</span>
+          </div>
+        </div>
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">节奏</div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">下一题倒计时</span>
+            <input type="range" min="3" max="15" value="6" step="1" id="dbg-ndur" oninput="onNdurChange(this.value)">
+            <span class="sheet-row-val" id="dbg-ndur-val">6s</span>
+          </div>
+        </div>
       </div>
-      <div class="sheet-row">
-        <span class="sheet-row-lbl">播报延迟</span>
-        <input type="range" min="0.5" max="3" value="1.2" step="0.1" id="dbg-delay" oninput="onDelayChange(this.value)">
-        <span class="sheet-row-val" id="dbg-delay-val">1.2s</span>
+
+      <!-- Tab 1: 语音 -->
+      <div class="sheet-panel" id="tab-1">
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">播报</div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">朗读物品提示</span>
+            <label class="stoggle">
+              <input type="checkbox" id="hint-toggle" checked onchange="toggleReadHint(this)">
+              <div class="stoggle-track"></div>
+              <div class="stoggle-thumb"></div>
+            </label>
+          </div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">播报延迟</span>
+            <input type="range" min="0.5" max="3" value="1.2" step="0.1" id="dbg-delay" oninput="onDelayChange(this.value)">
+            <span class="sheet-row-val" id="dbg-delay-val">1.2s</span>
+          </div>
+        </div>
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">选题提示音</div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">提示间隔</span>
+            <input type="range" min="2" max="15" value="5" step="1" id="dbg-thresh" oninput="onThreshChange(this.value)">
+            <span class="sheet-row-val" id="dbg-thresh-val">5s</span>
+          </div>
+        </div>
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">提示用语</div>
+          <div class="sheet-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
+            <span class="sheet-row-lbl">选题提示</span>
+            <input type="text" id="phrase-select" class="phrase-input" value="请选择答案" oninput="onPhraseChange('select',this.value)">
+          </div>
+          <div class="sheet-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
+            <span class="sheet-row-lbl">答错提示</span>
+            <input type="text" id="phrase-wrong" class="phrase-input" value="不要着急，再试一次" oninput="onPhraseChange('wrong',this.value)">
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- Tab 2: 文字 -->
+      <div class="sheet-panel" id="tab-2">
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">字号</div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">选项</span>
+            <input type="range" min="18" max="36" value="26" step="1" id="fs-opt" oninput="onFsChange('opt',this.value)">
+            <span class="sheet-row-val" id="fs-opt-val">26</span>
+          </div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">答案</span>
+            <input type="range" min="28" max="64" value="48" step="2" id="fs-ans" oninput="onFsChange('ans',this.value)">
+            <span class="sheet-row-val" id="fs-ans-val">48</span>
+          </div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">提示</span>
+            <input type="range" min="12" max="24" value="15" step="1" id="fs-hint" oninput="onFsChange('hint',this.value)">
+            <span class="sheet-row-val" id="fs-hint-val">15</span>
+          </div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">按钮</span>
+            <input type="range" min="14" max="28" value="20" step="1" id="fs-btn" oninput="onFsChange('btn',this.value)">
+            <span class="sheet-row-val" id="fs-btn-val">20</span>
+          </div>
+        </div>
+        <div class="sheet-section">
+          <div class="sheet-section-lbl">字间距</div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">选项</span>
+            <input type="range" min="0" max="12" value="2" step="1" id="ls-opt" oninput="onLsChange('opt',this.value)">
+            <span class="sheet-row-val" id="ls-opt-val">2px</span>
+          </div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">答案</span>
+            <input type="range" min="-4" max="8" value="-1" step="1" id="ls-ans" oninput="onLsChange('ans',this.value)">
+            <span class="sheet-row-val" id="ls-ans-val">-1px</span>
+          </div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">提示</span>
+            <input type="range" min="0" max="8" value="0" step="1" id="ls-hint" oninput="onLsChange('hint',this.value)">
+            <span class="sheet-row-val" id="ls-hint-val">0px</span>
+          </div>
+          <div class="sheet-row">
+            <span class="sheet-row-lbl">按钮</span>
+            <input type="range" min="0" max="8" value="0" step="1" id="ls-btn" oninput="onLsChange('btn',this.value)">
+            <span class="sheet-row-val" id="ls-btn-val">0px</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sheet-panels -->
   </div>
 </div>
 
@@ -759,11 +895,14 @@ function getDeck(key) {
 let currentDeck = 'fruit';
 let currentMode = 'quiz';
 let Qs = [];
-let qIdx = 0, sel = null, revealed = false;
-let diamonds = 0;
+let qIdx = 0, sel = null, revealed = false, wrongCount = 0;
 let nRaf = null, nStart = null;
-const NDUR = 6000;
+let NDUR = 6000;  // 下一题倒计时（毫秒）
 let THRESH = 5000, SPEAK_DELAY = 1200;
+let READ_HINT = true;
+let OPT_COUNT = 3;  // 显示选项数量（2-4）
+let PHRASE_SELECT = '请选择答案';
+let PHRASE_WRONG  = '不要着急，再试一次';
 
 // ── Home nav ───────────────────────────────────────────────────
 function renderDeckList() {
@@ -835,18 +974,11 @@ function _launch(mode) {
 function goHome() {
   stopNRing(); stopAllPromptTimers();
   speechSynthesis.cancel();
-  document.getElementById('home-diamond-count').textContent = diamonds;
   renderDeckList();
   updateDeckStats();
-  updateStreak();
   showScreen('screen-home');
 }
 
-function updateStreak() {
-  const streak = parseInt(localStorage.getItem('streak') || '0');
-  const el = document.getElementById('home-streak');
-  if (el) el.textContent = streak;
-}
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => {
@@ -858,29 +990,13 @@ function showScreen(id) {
 }
 
 // ── Prompt timers ──────────────────────────────────────────────
-let tSelTimer = null, tConfTimer = null;
+let tSelTimer = null;
 function startSelectTimer() {
   clearSelectTimer();
-  tSelTimer = setTimeout(() => { if (!revealed && sel === null) speak('请选择答案'); }, THRESH);
+  tSelTimer = setTimeout(() => { if (!revealed && sel === null) speak(PHRASE_SELECT); }, THRESH);
 }
 function clearSelectTimer() { if (tSelTimer) { clearTimeout(tSelTimer); tSelTimer = null; } }
-function startConfirmTimer() {
-  clearConfirmTimer();
-  tConfTimer = setTimeout(() => { if (!revealed && sel !== null) speak('请确认答案'); }, THRESH);
-}
-function clearConfirmTimer() { if (tConfTimer) { clearTimeout(tConfTimer); tConfTimer = null; } }
-function stopAllPromptTimers() { clearSelectTimer(); clearConfirmTimer(); speechSynthesis.cancel(); }
-
-function onThreshChange(v) {
-  THRESH = parseFloat(v) * 1000;
-  document.getElementById('dbg-thresh-val').textContent = `${v}s`;
-  if (tSelTimer)  { clearSelectTimer();  startSelectTimer(); }
-  if (tConfTimer) { clearConfirmTimer(); startConfirmTimer(); }
-}
-function onDelayChange(v) {
-  SPEAK_DELAY = parseFloat(v) * 1000;
-  document.getElementById('dbg-delay-val').textContent = `${parseFloat(v).toFixed(1)}s`;
-}
+function stopAllPromptTimers() { clearSelectTimer(); speechSynthesis.cancel(); }
 
 // ── Audio ──────────────────────────────────────────────────────
 let ac = null;
@@ -902,7 +1018,6 @@ function tone(t) {
   if (t==='ok')   { [[523,0],[659,.1],[784,.2],[1047,.32],[1319,.45]].forEach(([f,d])=>n(f,now+d,.18,.22)); }
   if (t==='clk')  { n(780,now,.06,.18); }
   if (t==='next') { n(880,now,.05,.15);n(1100,now+.06,.08,.11); }
-  if (t==='diamond') { [[1319,0],[1568,.06],[1760,.12]].forEach(([f,d])=>n(f,now+d,.12,.18)); }
 }
 
 // ── Speech ─────────────────────────────────────────────────────
@@ -939,10 +1054,9 @@ function pickVoice() {
       || (voices.length ? voices[0] : null);
 }
 
-function speak(text, delay = 0) {
+function speak(text, delay = 0, onend = null) {
   speechSynthesis.cancel();
   const go = () => {
-    // On iOS, if voices still empty after warmup, retry once
     if (!voices.length) loadVoices();
     const utt = new SpeechSynthesisUtterance(text);
     utt.lang = 'zh-CN';
@@ -951,8 +1065,8 @@ function speak(text, delay = 0) {
     utt.volume = 1;
     const v = pickVoice();
     if (v) utt.voice = v;
+    if (onend) utt.onend = onend;
     speechSynthesis.speak(utt);
-    // iOS bug: sometimes pauses after starting
     setTimeout(() => {
       if (speechSynthesis.paused) speechSynthesis.resume();
     }, 250);
@@ -961,66 +1075,20 @@ function speak(text, delay = 0) {
   else go();
 }
 
-// ── Diamond ────────────────────────────────────────────────────
-let dRaf = null;
-function addDiamond() {
-  diamonds++;
-  const el = document.getElementById('dcount');
-  el.textContent = diamonds;
-  el.style.transform = 'scale(1.5)';
-  setTimeout(() => el.style.transform = '', 250);
-  // floating +1 label
-  const counter = document.getElementById('diamond-counter');
-  const plus = document.createElement('span');
-  plus.className = 'diamond-plus'; plus.textContent = '+1';
-  counter.appendChild(plus);
-  plus.addEventListener('animationend', () => plus.remove());
-  tone('diamond');
-  // particle burst from diamond icon position
-  const rect = counter.getBoundingClientRect();
-  spawnDiamondBurst(rect.left + rect.width/2, rect.top + rect.height/2);
-}
-
-function spawnDiamondBurst(ox, oy) {
-  const cv = document.getElementById('dc'), ctx = cv.getContext('2d');
-  cv.width = window.innerWidth; cv.height = window.innerHeight;
-  const cols = ['#06b6d4','#a5f3fc','#67e8f9','#0891b2','#ffffff'];
-  const ps = Array.from({length:22}, () => {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 5 + 2;
-    return {
-      x: ox, y: oy,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 2,
-      r: Math.random() * 4 + 2,
-      color: cols[Math.floor(Math.random()*cols.length)],
-      life: 1
-    };
+// Speak an array of strings one after another, then call onDone
+function speakSequence(items, onDone, pause = 350) {
+  if (!items || items.length === 0) { if (onDone) onDone(); return; }
+  const [first, ...rest] = items;
+  speak(first, 0, () => {
+    if (rest.length > 0) setTimeout(() => speakSequence(rest, onDone, pause), pause);
+    else { setTimeout(() => { if (onDone) onDone(); }, pause); }
   });
-  cancelAnimationFrame(dRaf);
-  (function draw() {
-    ctx.clearRect(0,0,cv.width,cv.height);
-    let alive = false;
-    ps.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.vy += .18; p.life -= .04;
-      if (p.life > 0) { alive = true; }
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.life);
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = p.color;
-      ctx.fill();
-      ctx.restore();
-    });
-    if (alive) dRaf = requestAnimationFrame(draw);
-    else ctx.clearRect(0,0,cv.width,cv.height);
-  })();
 }
 
 // ── Render ─────────────────────────────────────────────────────
 function render() {
   const q = Qs[qIdx];
-  sel = null; revealed = false;
+  sel = null; revealed = false; wrongCount = 0;
 
   document.getElementById('pfill').style.width = `${(qIdx / Qs.length) * 100}%`;
 
@@ -1028,12 +1096,10 @@ function render() {
   timg.style.animation='none'; void timg.offsetWidth; timg.style.animation='';
   timg.textContent = q.img;
 
-  const instr = document.getElementById('instr');
-  instr.style.opacity='1'; instr.style.transition='';
-
   // Browse mode: skip options, auto-reveal
   if (q.browse) {
     document.getElementById('opts-zone').style.display = 'none';
+    document.getElementById('content').classList.add('revealed');
     document.getElementById('subbtn').className = 'subbtn gone';
     revealBrowse(q);
     return;
@@ -1041,9 +1107,20 @@ function render() {
 
   const opts = document.getElementById('opts');
   opts.innerHTML = '';
-  q.options.forEach((txt, i) => {
+
+  // Pick OPT_COUNT options, always including the correct one
+  const allOpts = q.options.map((txt, i) => ({txt, i}));
+  const correct = allOpts[q.correct];
+  const distractors = allOpts.filter(o => o.i !== q.correct);
+  // shuffle distractors, take (OPT_COUNT-1), then add correct, shuffle again
+  const picked = distractors.sort(() => Math.random() - .5).slice(0, OPT_COUNT - 1);
+  picked.push(correct);
+  picked.sort(() => Math.random() - .5);
+
+  picked.forEach(({txt, i}) => {
     const btn = document.createElement('button');
     btn.className = 'opt';
+    btn.dataset.idx = i;
     btn.innerHTML = `<div class="otxt">${txt}</div>`;
     btn.ontouchstart = () => {};
     btn.addEventListener('click', e => onSel(e, i, btn));
@@ -1051,17 +1128,29 @@ function render() {
   });
 
   document.getElementById('opts-zone').style.display = '';
-  document.getElementById('subbtn').className = 'subbtn';
-  document.getElementById('sublbl').textContent = '确认答案';
+  document.getElementById('content').classList.remove('revealed');
   document.getElementById('answer-panel').className = 'answer-panel';
-  document.getElementById('nxtbtn').className = 'nxtbtn';
-  stopNRing();
+  const _nb=document.getElementById('nxtbtn'); _nb.className='nxtbtn'; document.querySelector('.btm').classList.remove('active'); stopNRing();
+
+  // Set button height = image height / OPT_COUNT, opts-zone height = image height
+  requestAnimationFrame(() => {
+    const imgH = document.querySelector('.target-card')?.offsetHeight || 0;
+    if (imgH > 0) {
+      const gap = 8, pad = 16, n = OPT_COUNT;
+      const zoneH = imgH;
+      const btnH = Math.floor((zoneH - pad - gap * (n - 1)) / n);
+      document.documentElement.style.setProperty('--opts-zone-h', `${zoneH}px`);
+      document.documentElement.style.setProperty('--opt-btn-h', `${btnH}px`);
+    }
+  });
   stopAllPromptTimers();
   startSelectTimer();
 }
 
 function revealBrowse(q) {
   const answerName = q.name || q.options[q.correct];
+  const hints = READ_HINT && q.details && q.details.length ? q.details : [];
+
   document.getElementById('answer-panel').className = 'answer-panel';
   document.getElementById('ans-word').textContent = answerName;
   document.getElementById('ans-word').className = 'answer-word';
@@ -1075,17 +1164,31 @@ function revealBrowse(q) {
     setTimeout(()=>item.classList.add('show'), 300 + i*120);
   });
   setTimeout(()=>document.getElementById('answer-panel').classList.add('show'), 30);
-  speak(answerName, SPEAK_DELAY);
+
+  // show next button immediately — clickable right away
+  const nb0=document.getElementById('nxtbtn');
+  nb0.classList.add('show');
+  document.querySelector('.btm').classList.add('active');
+
+  // speak name + hints, then start countdown
+  const startCountdown = () => startNRing();
+
   setTimeout(()=>{
-    const nb=document.getElementById('nxtbtn');
-    nb.classList.add('show');
-    startNRing();
-  }, 320);
+    if (hints.length) {
+      speak(answerName, 0, () => {
+        setTimeout(() => speakSequence(hints, startCountdown), 400);
+      });
+    } else {
+      speak(answerName, 0, () => { setTimeout(startCountdown, 300); });
+    }
+  }, SPEAK_DELAY);
 }
 
 // ── Select ─────────────────────────────────────────────────────
 function onSel(e, idx, btn) {
   if (revealed) return;
+
+  // ripple
   const r = document.createElement('span');
   const d = Math.max(btn.offsetWidth, btn.offsetHeight);
   const rc = btn.getBoundingClientRect();
@@ -1093,17 +1196,33 @@ function onSel(e, idx, btn) {
   r.style.cssText=`width:${d}px;height:${d}px;left:${(e.touches?.[0]?.clientX??e.clientX)-rc.left-d/2}px;top:${(e.touches?.[0]?.clientY??e.clientY)-rc.top-d/2}px`;
   btn.appendChild(r); r.addEventListener('animationend',()=>r.remove());
 
-  if (sel===idx) {
-    btn.classList.remove('sel'); sel=null;
-    document.getElementById('subbtn').classList.remove('on');
-    const instr=document.getElementById('instr'); instr.style.transition='opacity .25s'; instr.style.opacity='1';
-    clearConfirmTimer(); startSelectTimer(); return;
+  document.querySelectorAll('.opt').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel'); sel = idx; tone('sel');
+  stopAllPromptTimers();
+
+  const q = Qs[qIdx];
+  if (idx === q.correct) {
+    tone('ok');
+    setTimeout(spawnConfetti, 100);
+    revealAnswer();
+  } else {
+    wrongCount++;
+    if (wrongCount === 1) {
+      btn.style.pointerEvents = 'none';
+      sel = null;
+      // fade out and remove the clicked wrong button itself
+      requestAnimationFrame(() => {
+        btn.style.transition = 'opacity .3s, transform .3s';
+        btn.style.opacity = '0';
+        btn.style.transform = 'scale(.9)';
+        setTimeout(() => btn.remove(), 300);
+      });
+      speak(PHRASE_WRONG);
+      setTimeout(() => startSelectTimer(), 350);
+    } else {
+      revealAnswer();
+    }
   }
-  document.querySelectorAll('.opt').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel'); sel=idx; tone('sel');
-  document.getElementById('subbtn').classList.add('on');
-  const instr=document.getElementById('instr'); instr.style.transition='opacity .28s'; instr.style.opacity='0';
-  clearSelectTimer(); startConfirmTimer();
 }
 
 // ── Submit ─────────────────────────────────────────────────────
@@ -1127,6 +1246,7 @@ function revealAnswer() {
   const answerName = q.name || q.options[q.correct];
 
   document.getElementById('opts-zone').style.display='none';
+  document.getElementById('content').classList.add('revealed');
   const panel=document.getElementById('answer-panel');
   document.getElementById('ans-word').textContent=answerName;
   document.getElementById('ans-word').className='answer-word';
@@ -1141,22 +1261,36 @@ function revealAnswer() {
   });
   setTimeout(()=>panel.classList.add('show'),30);
 
-  if (isOk) { tone('ok'); setTimeout(spawnConfetti,200); setTimeout(addDiamond,400); }
+  if (isOk) { /* tone and confetti now in onSel */ }
 
-  speak(answerName, SPEAK_DELAY);
   document.getElementById('subbtn').classList.add('gone');
+
+  const hints = READ_HINT && q.details && q.details.length ? q.details : [];
+
+  // show next button immediately, clickable now
+  const nb2 = document.getElementById('nxtbtn');
+  nb2.classList.add('show');
+  document.querySelector('.btm').classList.add('active');
+
+  // speak, then start countdown
+  const startCountdown = () => startNRing();
+
   setTimeout(()=>{
-    const nb=document.getElementById('nxtbtn');
-    nb.classList.add('show');
-    nb.classList.remove('jly'); void nb.offsetWidth; nb.classList.add('jly');
-    nb.addEventListener('animationend',()=>nb.classList.remove('jly'),{once:true});
-    startNRing();
-  },320);
+    if (hints.length) {
+      speak(answerName, 0, () => {
+        setTimeout(() => speakSequence(hints, startCountdown), 400);
+      });
+    } else {
+      speak(answerName, 0, () => { setTimeout(startCountdown, 300); });
+    }
+  }, SPEAK_DELAY);
 }
 
 // ── Next ───────────────────────────────────────────────────────
 function onNext() {
-  stopNRing(); stopAllPromptTimers(); speechSynthesis.cancel(); tone('next');
+  stopNRing(); stopAllPromptTimers();
+  speechSynthesis.cancel();   // interrupt any playing speech
+  tone('next');
   qIdx=(qIdx+1)%Qs.length;
   const ct=document.getElementById('content');
   ct.classList.add('sout');
@@ -1169,30 +1303,39 @@ function onNext() {
 
 // ── Next ring ──────────────────────────────────────────────────
 function startNRing() {
-  const btn=document.getElementById('nxtbtn'),svg=document.getElementById('nrsvg');
-  const nrt=document.getElementById('nrt'),nrp=document.getElementById('nrp'),sec=document.getElementById('nrsec');
-  const w=btn.offsetWidth,h=btn.offsetHeight,pad=2;
-  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
-  [nrt,nrp].forEach(el=>{el.setAttribute('x',pad);el.setAttribute('y',pad);el.setAttribute('width',w-pad*2);el.setAttribute('height',h-pad*2);el.setAttribute('rx',20);});
-  const r=20,perim=2*((w-2*r)+(h-2*r))+2*Math.PI*r;
-  nrt.style.strokeDasharray=perim;nrt.style.strokeDashoffset=0;
-  nrp.style.strokeDasharray=perim;nrp.style.strokeDashoffset=perim;
-  nStart=performance.now();
-  function tick(now){
-    const el=now-nStart,p=Math.min(el/NDUR,1);
-    nrp.style.strokeDashoffset=perim*(1-p);
-    const rem=Math.ceil((NDUR-el)/1000);
-    sec.textContent=rem>0?rem:'';
-    if(p<1){nRaf=requestAnimationFrame(tick);}
-    else{sec.textContent='';onNext();}
-  }
-  nRaf=requestAnimationFrame(tick);
+  requestAnimationFrame(() => {
+    const btn=document.getElementById('nxtbtn'),svg=document.getElementById('nrsvg');
+    const nrt=document.getElementById('nrt'),nrp=document.getElementById('nrp'),sec=document.getElementById('nrsec');
+    const w=btn.offsetWidth,h=btn.offsetHeight,pad=2;
+    if (!w || !h) return;
+    btn.classList.add('counting');
+    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    [nrt,nrp].forEach(el=>{el.setAttribute('x',pad);el.setAttribute('y',pad);el.setAttribute('width',w-pad*2);el.setAttribute('height',h-pad*2);el.setAttribute('rx',20);});
+    const r=20,perim=2*((w-2*r)+(h-2*r))+2*Math.PI*r;
+    nrt.style.strokeDasharray=perim;nrt.style.strokeDashoffset=0;
+    nrp.style.strokeDasharray=perim;nrp.style.strokeDashoffset=perim;
+    nStart=performance.now();
+    function tick(now){
+      const el=now-nStart,p=Math.min(el/NDUR,1);
+      nrp.style.strokeDashoffset=perim*(1-p);
+      const rem=Math.ceil((NDUR-el)/1000);
+      sec.textContent=rem>0?rem:'';
+      if(p<1){nRaf=requestAnimationFrame(tick);}
+      else{sec.textContent='';onNext();}
+    }
+    nRaf=requestAnimationFrame(tick);
+  });
 }
 function stopNRing(){
   if(nRaf){cancelAnimationFrame(nRaf);nRaf=null;}
-  const nrp=document.getElementById('nrp'),sec=document.getElementById('nrsec');
-  if(nrp)nrp.style.strokeDashoffset='9999';
-  if(sec)sec.textContent='';
+  const btn=document.getElementById('nxtbtn');
+  if(btn) btn.classList.remove('counting');
+  const nrp=document.getElementById('nrp');
+  const nrt=document.getElementById('nrt');
+  const sec=document.getElementById('nrsec');
+  if(nrp){ nrp.style.strokeDasharray=''; nrp.style.strokeDashoffset=''; }
+  if(nrt){ nrt.style.strokeDasharray=''; nrt.style.strokeDashoffset=''; }
+  if(sec) sec.textContent='';
 }
 
 // ── Confetti ───────────────────────────────────────────────────
@@ -1233,7 +1376,123 @@ function forceRefresh() {
   }
 }
 
+function onFsChange(key, v) {
+  document.documentElement.style.setProperty(`--fs-${key}`, `${v}px`);
+  document.getElementById(`fs-${key}-val`).textContent = v;
+  localStorage.setItem(`fs-${key}`, v);
+}
+function onLsChange(key, v) {
+  document.documentElement.style.setProperty(`--ls-${key}`, `${v}px`);
+  document.getElementById(`ls-${key}-val`).textContent = `${v}px`;
+  localStorage.setItem(`ls-${key}`, v);
+}
+
+function toggleReadHint(cb) {
+  READ_HINT = cb.checked;
+  localStorage.setItem('readHint', READ_HINT ? '1' : '0');
+}
+
+function onPhraseChange(key, val) {
+  if (key === 'select') { PHRASE_SELECT = val || '请选择答案'; localStorage.setItem('phraseSelect', PHRASE_SELECT); }
+  if (key === 'wrong')  { PHRASE_WRONG  = val || '不要着急，再试一次'; localStorage.setItem('phraseWrong', PHRASE_WRONG); }
+}
+
+function onOptCount(v) {
+  OPT_COUNT = parseInt(v);
+  document.getElementById('opt-count-val').textContent = `${v}个`;
+  localStorage.setItem('optCount', v);
+}
+
+function onNdurChange(v) {
+  NDUR = parseFloat(v) * 1000;
+  document.getElementById('dbg-ndur-val').textContent = `${v}s`;
+  localStorage.setItem('ndur', v);
+}
+
+function onThreshChange(v) {
+  THRESH = parseFloat(v) * 1000;
+  document.getElementById('dbg-thresh-val').textContent = `${v}s`;
+  localStorage.setItem('thresh', v);
+  if (tSelTimer)  { clearSelectTimer();  startSelectTimer(); }
+}
+function onDelayChange(v) {
+  SPEAK_DELAY = parseFloat(v) * 1000;
+  document.getElementById('dbg-delay-val').textContent = `${parseFloat(v).toFixed(1)}s`;
+  localStorage.setItem('delay', v);
+}
+
+function loadSettings() {
+  const rh = localStorage.getItem('readHint');
+  if (rh !== null) READ_HINT = rh === '1';
+  const oc = localStorage.getItem('optCount');
+  if (oc) OPT_COUNT = parseInt(oc);
+
+  const ps = localStorage.getItem('phraseSelect');
+  if (ps) PHRASE_SELECT = ps;
+  const pw = localStorage.getItem('phraseWrong');
+  if (pw) PHRASE_WRONG = pw;
+
+  const thresh = localStorage.getItem('thresh');
+  if (thresh) { THRESH = parseFloat(thresh) * 1000; }
+  const delay = localStorage.getItem('delay');
+  if (delay) { SPEAK_DELAY = parseFloat(delay) * 1000; }
+  const ndur = localStorage.getItem('ndur');
+  if (ndur) { NDUR = parseFloat(ndur) * 1000; }
+
+  // Restore CSS variable settings
+  const cssVars = [
+    {k:'fs-opt', def:'26'}, {k:'fs-ans', def:'48'},
+    {k:'fs-hint', def:'15'}, {k:'fs-btn', def:'20'},
+    {k:'ls-opt', def:'2'}, {k:'ls-ans', def:'-1'},
+    {k:'ls-hint', def:'0'}, {k:'ls-btn', def:'0'},
+  ];
+  cssVars.forEach(({k, def}) => {
+    const v = localStorage.getItem(k) || def;
+    if (k.startsWith('fs-') || k.startsWith('ls-')) {
+      document.documentElement.style.setProperty(`--${k}`, `${v}px`);
+    }
+  });
+
+  window.addEventListener('load', () => {
+    const ht = document.getElementById('hint-toggle');
+    if (ht) ht.checked = READ_HINT;
+    const ocEl = document.getElementById('opt-count');
+    if (ocEl) { ocEl.value = OPT_COUNT; document.getElementById('opt-count-val').textContent = `${OPT_COUNT}个`; }
+    const ps2 = document.getElementById('phrase-select');
+    if (ps2) ps2.value = PHRASE_SELECT;
+    const pw2 = document.getElementById('phrase-wrong');
+    if (pw2) pw2.value = PHRASE_WRONG;
+    const thEl = document.getElementById('dbg-thresh');
+    const thVal = document.getElementById('dbg-thresh-val');
+    if (thEl && thresh) { thEl.value = thresh; thVal.textContent = `${thresh}s`; }
+    const dlEl = document.getElementById('dbg-delay');
+    const dlVal = document.getElementById('dbg-delay-val');
+    if (dlEl && delay) { dlEl.value = delay; dlVal.textContent = `${parseFloat(delay).toFixed(1)}s`; }
+    const ndurEl = document.getElementById('dbg-ndur');
+    const ndurVal = document.getElementById('dbg-ndur-val');
+    if (ndurEl && ndur) { ndurEl.value = ndur; ndurVal.textContent = `${ndur}s`; }
+    // sync CSS var sliders
+    [
+      {id:'fs-opt',suf:'',def:'26'},{id:'fs-ans',suf:'',def:'48'},
+      {id:'fs-hint',suf:'',def:'15'},{id:'fs-btn',suf:'',def:'20'},
+      {id:'ls-opt',suf:'px',def:'2'},{id:'ls-ans',suf:'px',def:'-1'},
+      {id:'ls-hint',suf:'px',def:'0'},{id:'ls-btn',suf:'px',def:'0'},
+    ].forEach(({id,suf,def})=>{
+      const el=document.getElementById(id);
+      const val=document.getElementById(`${id}-val`);
+      const v=localStorage.getItem(id)||def;
+      if(el) el.value=v;
+      if(val) val.textContent=`${v}${suf}`;
+    });
+  });
+}
+loadSettings();
+
 // ── Settings ───────────────────────────────────────────────────
+function switchTab(n) {
+  document.querySelectorAll('.sheet-tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+  document.querySelectorAll('.sheet-panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+}
 function openSettings(){ document.getElementById('settings-overlay').classList.add('open'); }
 function closeSettings(){ document.getElementById('settings-overlay').classList.remove('open'); }
 function closeSettingsIfOutside(e){ if(e.target===document.getElementById('settings-overlay'))closeSettings(); }
@@ -1253,8 +1512,7 @@ function toggleTheme(checkbox){
     const tog=document.getElementById('dark-toggle');if(tog)tog.checked=isDark;
     renderDeckList();
     updateDeckStats();
-    updateStreak();
-  });
+    });
 })();
 </script>
 </body>
